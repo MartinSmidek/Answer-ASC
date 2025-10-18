@@ -27,12 +27,12 @@
       
   // informace pro debugger
   $dbg_info= (object)array(
-    'src_path'  => array('ms2','db2','ezer3.2') // poloha a preference zdrojových modulů
+    'src_path'  => array('asc','db2','ezer3.3') // poloha a preference zdrojových modulů
   );
 
   // databáze
-  $deep_root= "../files/answer";
-  require_once("$deep_root/ms2.dbs.php");
+  $deep_root= "../files/asc";
+  require_once("$deep_root/asc.dbs.php");
   
   $path_backup= "$deep_root/sql";
   
