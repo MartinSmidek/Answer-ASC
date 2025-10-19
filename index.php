@@ -45,13 +45,13 @@
 
   //  require_once("asc.php");
   $add_options= (object) [
-    'watch_access' => 8,
+    'watch_access' => 32,
     'group_db'     => "'ezer_answer'",
     'watch_access_opt' => // ... barvení v Uživatelé + select v ezer2.syst.ezer
-       "{name:{8:'ASC'},
-         abbr:{8:'M'},
-         css:{8:'ezer_ms'}}",
-    'web'          => "'manzelskasetkani.cz'", // web organizace - pro odmítnutí odhlášení
+       "{name:{32:'ASC'},
+         abbr:{32:'A'},
+         css:{32:'ezer_ms'}}",
+    'web'          => "'https://www.ascczech.cz'", // web organizace - pro odmítnutí odhlášení
     'skill'        => "'d'",
     'autoskill'    => "'!d'",
     'db_test'      => 0,
@@ -59,7 +59,8 @@
   ];
 
   // (re)definice Ezer.options
-  $title= "<span $title_style>$title_flag$app_name<sub>3.2</sub> Šance pro manželství</span>";
+  $title= "<span $title_style>$title_flag$app_name<sub>$ezer_version</sub> "
+      . "Sdružení salesiánů spolupracovníků</span>";
   $add_pars= array(
     'favicon' => array("{$app}_local.png","{$app}.png","{$app}_dsm.png")[$ezer_server],
     'watch_key' => 1,   // true = povolit přístup jen po vložení klíče
