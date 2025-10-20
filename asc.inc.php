@@ -1,4 +1,4 @@
-<?php # Systém An(w)er/Ezer/YMCA Familia a YMCA Setkání, (c) 2008-2015 Martin Šmídek <martin@smidek.eu>
+<?php # Systém Answer pro ASC, (c) 2025 Martin Šmídek <martin@smidek.eu>
 
   # nastavení systému Ans(w)er před voláním AJAX
   #   $answer_db  = logický název hlavní databáze 

@@ -40,8 +40,8 @@ menu asc { type:'main', title:'asc', active:*, _sys:'*'
       }
       menu {type:'left', active:*
         menu {title:'Přehled',type:'group', _sys:'*'
-          item {title:'Záznamy', par:{org:'8',cmd:'show'}}
-          item {title:'Ulož ezer_answer.db_osoba', par:{org:'8',cmd:'save'}, skill:'m'}
+          item {title:'Záznamy', par:{org:'32',cmd:'show'}}
+          item {title:'Ulož ezer_answer.db_osoba', par:{org:'32',cmd:'save'}, skill:'m'}
           proc onclick (i) {
             clear; info.display(0,'t');
             info.fill(conc(i.owner.title,' - ',i.title),'... probíhá výpočet ...');

@@ -1,4 +1,4 @@
-<?php # Systém An(w)er/YMCA Setkání/YMCA Familia, (c) 2008-2015 Martin Šmídek <martin@smidek.eu>
+<?php # Systém Answer pro ASC, (c) 2025 Martin Šmídek <martin@smidek.eu>
 
   # inicializace systémů Ans(w)er
   #   $app        = kořenová podsložka aplikace ... db2
