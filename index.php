@@ -32,6 +32,13 @@
   // ochránění přímého přístupu do složek s .htaccess/RewriteCond "%{HTTP_COOKIE}" "!EZER"
   setcookie("EZER",$app,0,"/");
 
+  // upozornění na testovací verzi, po kliku zmizí
+  $demo= '';
+  $click= "jQuery('#DEMO').fadeOut(500);";
+  $dstyle= "left:-50px; bottom:0; position:fixed; transform:rotate(40deg) translate(-107px,-14px); "
+      . "width:500px;height:80px;background:orange; color:white; font-weight: bolder; "
+      . "text-align: center; font-size: 40px; line-height: 75px; z-index: 16; opacity: .5;";
+  $demo= "<div id='DEMO' onmouseover=\"$click\" style='$dstyle'>testovací data</div>";
   // skin a css
   $cookie= 8;
   $app_last_access= "{$app}_last_access";
@@ -59,7 +66,7 @@
   ];
 
   // (re)definice Ezer.options
-  $title= "<span $title_style>$title_flag$app_name<sub>$ezer_version</sub> "
+  $title= "$demo<span $title_style>$title_flag$app_name<sub>$ezer_version</sub> "
       . "Sdružení salesiánů spolupracovníků</span>";
   $add_pars= array(
     'favicon' => array("{$app}_local.png","{$app}.png","{$app}_dsm.png")[$ezer_server],
