@@ -32,7 +32,7 @@ $test= '-test'; // '' ostrá verze, '-test' testovací
       
   // informace pro debugger
   $dbg_info= (object)array(
-    'src_path'  => array("asc$test","db2$test","ezer$ezer_version") // poloha a preference zdrojových modulů
+    'src_path'  => array("asc","db2","ezer$ezer_version") // poloha a preference zdrojových modulů
   );
 
   // databáze
