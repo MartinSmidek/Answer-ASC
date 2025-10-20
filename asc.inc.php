@@ -17,6 +17,9 @@ $test= '-test'; // '' ostrá verze, '-test' testovací
   $rel_root=     $_SESSION[$ezer_root]['rel_root'];
   chdir($abs_root);
 
+  // živá větev v github
+  $git_app_branch= 'test';   // místo defaultu 'master'
+
   // inicializace objektu Ezer
   $EZER= (object)array(
       'version'=>"ezer{$_SESSION[$ezer_root]['ezer']}",
