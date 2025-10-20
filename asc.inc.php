@@ -92,4 +92,4 @@ $test= '-test'; // '' ostrá verze, '-test' testovací
   // SPECIFICKÉ PARAMETRY
   global $USER;
   $VPS= 'PPS';
-  $EZER->options->org= 'MS severní Čechy';
+  $EZER->options->org= 'ASC';
