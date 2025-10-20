@@ -7,19 +7,20 @@
   #   $app_css    = pole s *.css
   #   $options    = doplnění Ezer.options
   #   $add_pars   = doplnění $EZER->options
+  $test= ''; // '' ostrá verze, '-test' testovací
 
   // verze použitého jádra Ezeru
   $ezer_version= isset($_GET['ezer']) ? $_GET['ezer'] : '3.3'; 
 
   // server, databáze, cesty, klíče
-  $deep_root= "../files/asc";
+  $deep_root= "../files/asc$test";
   require_once("$deep_root/asc.dbs.php");
 
   // parametry aplikace Answer/db2
-  $app_name=  "Answer";
-  $app= $app_root=  'asc';
-  $app_version_in= 'db2';
-  $skin= 'ch';
+  $app_name=  "Answer$test";
+  $app= $app_root=  "asc";
+  $app_version_in= "db2$test";
+  $skin= $test ? 'tt' : 'ch';
 
   $title_style= $ezer_server ? '' : "style='color:#ef7f13'" ;
   $title_flag=  $ezer_server ? '' : 'lokální ';
@@ -31,9 +32,18 @@
   // ochránění přímého přístupu do složek s .htaccess/RewriteCond "%{HTTP_COOKIE}" "!EZER"
   setcookie("EZER",$app,0,"/");
 
+  // upozornění na testovací verzi, po kliku zmizí
+  $demo= '';
+  if ($test){
+    $click= "jQuery('#DEMO').fadeOut(500);";
+    $dstyle= "left:-50px; bottom:0; position:fixed; transform:rotate(40deg) translate(-107px,-14px); "
+        . "width:500px;height:80px;background:orange; color:white; font-weight: bolder; "
+        . "text-align: center; font-size: 40px; line-height: 75px; z-index: 16; opacity: .5;";
+    $demo= "<div id='DEMO' onmouseover=\"$click\" style='$dstyle'>testovací data</div>";
+  }
   // skin a css
   $cookie= 8;
-  $app_last_access= "asc_last_access";
+  $app_last_access= "{$app}_last_access";
 
   $app_js= array("db2/ds_fce3.js","db2/db2_fce3.js");
   
@@ -43,7 +53,6 @@
       "ezer$ezer_version/client/wiki.css"
    ];
 
-  //  require_once("asc.php");
   $add_options= (object) [
     'watch_access' => 32,
     'group_db'     => "'ezer_answer'",
@@ -55,11 +64,11 @@
     'skill'        => "'d'",
     'autoskill'    => "'!d'",
     'db_test'      => 0,
-    'dbg'          => "{path:['db2','asc']}"
+    'dbg'          => "{path:['db2$test','asc$test']}"
   ];
 
   // (re)definice Ezer.options
-  $title= "<span $title_style>$title_flag$app_name<sub>$ezer_version</sub> "
+  $title= "$demo<span $title_style>$title_flag$app_name<sub style='font-size:55%'>$ezer_version</sub> "
       . "Sdružení salesiánů spolupracovníků</span>";
   $add_pars= array(
     'favicon' => array("{$app}_local.png","{$app}.png","{$app}_dsm.png")[$ezer_server],

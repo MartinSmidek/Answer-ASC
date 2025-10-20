@@ -3,6 +3,8 @@
   # nastavení systému Ans(w)er před voláním AJAX
   #   $answer_db  = logický název hlavní databáze 
 
+$test= ''; // '' ostrá verze, '-test' testovací
+
   global // import 
     $ezer_root; 
   global // export
@@ -14,6 +16,9 @@
   $abs_root=     $_SESSION[$ezer_root]['abs_root'];
   $rel_root=     $_SESSION[$ezer_root]['rel_root'];
   chdir($abs_root);
+
+  // živá větev v github
+  $git_app_branch= $test ? 'test' : 'master';   // místo defaultu 'master'
 
   // inicializace objektu Ezer
   $EZER= (object)array(
@@ -27,11 +32,11 @@
       
   // informace pro debugger
   $dbg_info= (object)array(
-    'src_path'  => array('asc','db2','ezer3.3') // poloha a preference zdrojových modulů
+    'src_path'  => array("asc$test","db2$test","ezer$ezer_version") // poloha a preference zdrojových modulů
   );
 
   // databáze
-  $deep_root= "../files/asc";
+  $deep_root= "../files/asc$test";
   require_once("$deep_root/asc.dbs.php");
   
   $path_backup= "$deep_root/sql";
@@ -87,4 +92,4 @@
   // SPECIFICKÉ PARAMETRY
   global $USER;
   $VPS= 'PPS';
-  $EZER->options->org= 'MS severní Čechy';
+  $EZER->options->org= 'ASC';
