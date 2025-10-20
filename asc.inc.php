@@ -1,7 +1,9 @@
-<?php # Systém An(w)er/Ezer/YMCA Familia a YMCA Setkání, (c) 2008-2015 Martin Šmídek <martin@smidek.eu>
+<?php # Systém Answer pro ASC, (c) 2025 Martin Šmídek <martin@smidek.eu>
 
   # nastavení systému Ans(w)er před voláním AJAX
   #   $answer_db  = logický název hlavní databáze 
+
+$test= '-test'; // '' ostrá verze, '-test' testovací
 
   global // import 
     $ezer_root; 
@@ -27,11 +29,11 @@
       
   // informace pro debugger
   $dbg_info= (object)array(
-    'src_path'  => array('asc','db2','ezer3.3') // poloha a preference zdrojových modulů
+    'src_path'  => array("asc$test","db2$test","ezer$ezer_version") // poloha a preference zdrojových modulů
   );
 
   // databáze
-  $deep_root= "../files/asc";
+  $deep_root= "../files/asc$test";
   require_once("$deep_root/asc.dbs.php");
   
   $path_backup= "$deep_root/sql";

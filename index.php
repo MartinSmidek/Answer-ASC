@@ -1,4 +1,4 @@
-<?php # Systém An(w)er/YMCA Setkání/YMCA Familia, (c) 2008-2015 Martin Šmídek <martin@smidek.eu>
+<?php # Systém Answer pro ASC, (c) 2025 Martin Šmídek <martin@smidek.eu>
 
   # inicializace systémů Ans(w)er
   #   $app        = kořenová podsložka aplikace ... db2
@@ -7,19 +7,20 @@
   #   $app_css    = pole s *.css
   #   $options    = doplnění Ezer.options
   #   $add_pars   = doplnění $EZER->options
+  $test= '-test'; // '' ostrá verze, '-test' testovací
 
   // verze použitého jádra Ezeru
   $ezer_version= isset($_GET['ezer']) ? $_GET['ezer'] : '3.3'; 
 
   // server, databáze, cesty, klíče
-  $deep_root= "../files/asc";
+  $deep_root= "../files/asc$test";
   require_once("$deep_root/asc.dbs.php");
 
   // parametry aplikace Answer/db2
-  $app_name=  "Answer";
-  $app= $app_root=  'asc';
-  $app_version_in= 'db2';
-  $skin= 'ch';
+  $app_name=  "Answer$test";
+  $app= $app_root=  "asc";
+  $app_version_in= "db2$test";
+  $skin= 'tt';
 
   $title_style= $ezer_server ? '' : "style='color:#ef7f13'" ;
   $title_flag=  $ezer_server ? '' : 'lokální ';
@@ -33,7 +34,7 @@
 
   // skin a css
   $cookie= 8;
-  $app_last_access= "asc_last_access";
+  $app_last_access= "{$app}_last_access";
 
   $app_js= array("db2/ds_fce3.js","db2/db2_fce3.js");
   
@@ -43,7 +44,6 @@
       "ezer$ezer_version/client/wiki.css"
    ];
 
-  //  require_once("asc.php");
   $add_options= (object) [
     'watch_access' => 32,
     'group_db'     => "'ezer_answer'",
@@ -55,7 +55,7 @@
     'skill'        => "'d'",
     'autoskill'    => "'!d'",
     'db_test'      => 0,
-    'dbg'          => "{path:['db2','asc']}"
+    'dbg'          => "{path:['db2$test','asc$test']}"
   ];
 
   // (re)definice Ezer.options
