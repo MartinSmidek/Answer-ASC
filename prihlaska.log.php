@@ -12,3 +12,4 @@
 ><b>VERZE/JS  AKCE DATUM      ČAS      PŘIHLÁŠKA       KLIENT </b>
 2025.3/4 ???? 2025-10-20 15:59:28    ? <b style='color:red'>CATCH</b> Undefined offset: -1 na řádku  46:    |  1871: require_once (C:\Ezer\bean...)  |  133: connect_db ()  |  30: require_once (C:\Ezer\bean...)  mail=? ip=127.0.0.1
 2025.3/4 ???? 2025-10-20 15:59:37    ? <b style='color:red'>CATCH</b> Undefined offset: -1 na řádku  46:    |  1871: require_once (C:\Ezer\bean...)  |  133: connect_db ()  |  30: require_once (C:\Ezer\bean...)  mail=? ip=127.0.0.1
+2025.3/4 ???? 2025-10-20 16:28:46    ? <b style='color:red'>CATCH</b> Undefined offset: -1 na řádku  46:    |  1871: require_once (C:\Ezer\bean...)  |  133: connect_db ()  |  30: require_once (C:\Ezer\bean...)  mail=? ip=127.0.0.1
