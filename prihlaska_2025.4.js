@@ -2,7 +2,7 @@
 /*
   (c) 2025 Martin Smidek <martin@smidek.eu>
    
-  online přihlašování pro YMCA Setkání - verze 2025.3
+  online přihlašování pro ASC - verze 2025.3
   debuger je lokálne nastaven pro verze PHP: 7.2.33 - musí být ručně spuštěn Chrome
 
  */

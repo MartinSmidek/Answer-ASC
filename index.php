@@ -20,7 +20,7 @@
   $app_name=  "Answer$test";
   $app= $app_root=  "asc";
   $app_version_in= "db2$test";
-  $skin= 'tt';
+  $skin= $test ? 'tt' : 'ch';
 
   $title_style= $ezer_server ? '' : "style='color:#ef7f13'" ;
   $title_flag=  $ezer_server ? '' : 'lokální ';
@@ -34,11 +34,13 @@
 
   // upozornění na testovací verzi, po kliku zmizí
   $demo= '';
-  $click= "jQuery('#DEMO').fadeOut(500);";
-  $dstyle= "left:-50px; bottom:0; position:fixed; transform:rotate(40deg) translate(-107px,-14px); "
-      . "width:500px;height:80px;background:orange; color:white; font-weight: bolder; "
-      . "text-align: center; font-size: 40px; line-height: 75px; z-index: 16; opacity: .5;";
-  $demo= "<div id='DEMO' onmouseover=\"$click\" style='$dstyle'>testovací data</div>";
+  if ($test){
+    $click= "jQuery('#DEMO').fadeOut(500);";
+    $dstyle= "left:-50px; bottom:0; position:fixed; transform:rotate(40deg) translate(-107px,-14px); "
+        . "width:500px;height:80px;background:orange; color:white; font-weight: bolder; "
+        . "text-align: center; font-size: 40px; line-height: 75px; z-index: 16; opacity: .5;";
+    $demo= "<div id='DEMO' onmouseover=\"$click\" style='$dstyle'>testovací data</div>";
+  }
   // skin a css
   $cookie= 8;
   $app_last_access= "{$app}_last_access";

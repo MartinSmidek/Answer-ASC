@@ -18,7 +18,7 @@ $test= '-test'; // '' ostrá verze, '-test' testovací
   chdir($abs_root);
 
   // živá větev v github
-  $git_app_branch= 'test';   // místo defaultu 'master'
+  $git_app_branch= $test ? 'test' : 'master';   // místo defaultu 'master'
 
   // inicializace objektu Ezer
   $EZER= (object)array(

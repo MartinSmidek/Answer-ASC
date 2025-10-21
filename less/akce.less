@@ -1,0 +1,192 @@
+// ----------------------------------------------------------------------------------- parametrizace
+//        background           color
+@head_b:  #dfd5bb;    @head_c:  #000000;  
+@foot_b:  #312f38;    @foot_c:  #f4f5f7;
+@form_b:  #f8f5ed;
+@cleni_b: #f0ecdb;
+@dary_b:  #ffffff;
+@page_b:  #ffffff;
+@popup_b: #ffeeaa;
+//
+@width:   840px;
+@foot_h:   50px;
+@head_h:  120px;
+//
+@box_fs:  12pt;
+@box_fs2: 14pt;
+// ------------------------------------------------------------------------------------------ layout
+html {
+  height: 100%;
+  body { 
+    height: 100%; margin: 0; overflow: hidden;
+    font-family: "Open Sans"; font-weight: 400; font-size: @box_fs;  
+    background-color: @page_b;
+    div.wrapper {
+      height: 100%;
+      header {
+        width: 100%; 
+        /*height: @head_h;*/
+        background-color: @head_b; color: @head_c;
+        div.header {
+          max-width: @width; height: calc(@head_h - 40px); margin:0 auto; 
+          a.logo {
+            position: absolute; margin-top: 5px; 
+            img { max-height: 70px;}
+          }
+          div.user {
+            position: relative; float: right; padding: 15px; z-index: 1;
+            text-indent: -7px; background-color: @head_b;
+          }
+          div.info {
+            position: absolute; z-index: 2; margin-left: 150px;
+            background: yellow; border: 3px solid red; color: red; padding: 0 5px; 
+          }
+        }
+        div.intro {
+          clear: both; border-top: 3px solid white; 
+          color: @head_c; padding-top: 6px; font-size: @box_fs2; text-align: center; 
+          /*text-wrap: nowrap;*/
+        }
+      }
+      main {
+        .chng { outline:2px solid red; background:yellow }
+        .chng_ok { outline:2px solid green }
+        max-width: @width; margin:0 auto; height: calc(100% - @head_h - @foot_h); overflow: auto;
+        br {
+          clear:both;
+        }
+        button {
+          font-family: "Open Sans"; font-size: @box_fs; margin-bottom: 5px;
+          .fa-red { color:red }
+          .fa-green { color:green; font-weight: bold; }
+        }
+        div.box {
+          display:block; margin: 10px; padding: 10px;
+          background-color: @form_b;
+          div.clen, div.solo, div.rodina {
+            display: table; padding: 5px; margin: 5px;
+            background: darken(@form_b,10%);
+            .modal { // samostatně editovaná skupina 
+              z-index:2001; position:relative; display:inline;
+            }
+            div.strava_rozpis {
+              /*border-top: 1px solid black;*/
+              padding-top: 5px;
+            }
+          }
+          &.modal-box {
+            padding: 0px; margin: 0px;
+            background: transparent;
+            display: inline-block;
+          }
+          div.clen {
+            margin-left: 50px; margin-top: 10px;
+            button { float: right; margin: 0px 10px -6px 0px; }
+/*            span, div { margin:0px 0px 0px 10px; }*/
+          }
+          div.paru {
+            margin: 10px 5px !important; 
+          }
+          div.dary {
+            padding: 5px 10px; margin: 10px 5px;
+            background-color: @dary_b;
+          }
+          div.cleni {
+            padding-left: 5px; margin: 0 5px;
+            background-color: @cleni_b;
+          }
+          input, select {
+            font-family: "Open Sans"; font-size: @box_fs; 
+            resize: none;
+          }
+          textarea {
+            width:100%; max-width: 100%;
+            font-family: "Open Sans"; font-size: @box_fs; 
+            resize: none;
+          }
+          label.upper {
+            display: inline-block; margin-left: 10px; font-size: 12px;
+            input, select, textarea {
+              display:block; margin: 0 5px 5px -5px;
+            }
+          }
+          label.upper-area {
+            width: calc(100% - 20px);
+            float:left; margin-left: 10px; font-size: 12px;
+            input, select, textarea {
+              display:block; margin: 0 5px 5px -5px;
+            }
+          }
+          label.check_spolu {
+            float:left; margin-left: -55px; font-size: 12px;
+            input { display:block; margin: 5px 15px; }
+          }
+          label.check_souhlas {
+            float:left; font-size: 12px;
+            input { display:block; margin: 5px 15px; }
+          }
+          div.check_sleva {
+            display: inline-block; padding: 20px 0 0 10px; 
+            input { margin: 5px 10px; }
+          }
+          div.check {
+            display: inline-block; padding: 5px;
+          }
+          select { padding: 1px; }
+          p.souhlas {
+            font-size: 12px; clear:both; font-style: italic;
+          }
+          span {
+            display: contents; margin: 20px 5px 0 5px; float: left;
+          }
+          .missing {
+            outline: 2px solid red;
+          }
+        }
+        div.prosba {
+          padding: 0 40px; font-size: 12px;  font-style: italic;
+        }
+      }
+      footer {
+        position: absolute; bottom: 0; width: 100%; height: @foot_h;  margin: 0;
+        background: @foot_b; color: @foot_c;
+        div.footer {
+          max-width: @width; margin:0 auto; padding: 15px;
+          color: @foot_c;
+        }
+      }
+    }
+    // ----------------------------------------------------------------------------- popup
+    div.popup { 
+      z-index:2001; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);    
+      text-align: center; padding: 20px; border-left: 20px solid red;
+      background: @popup_b; 
+      box-shadow: 5px 5px 10px 10px rgba(0, 0, 0, 0.5);
+    }
+    #popup_mask {
+      display: none;
+      z-index:2000; position: absolute; left: 0; top: 0; width: 100%; height: 100%; 
+      background-color: rgba(51, 51, 51, 0.2); 
+    }
+    // ----------------------------------------------------------------------------- trasování
+    #mailbox { border-left: 20px solid grey; }
+    #alertbox_back { right: 10px; top: 10px; position: absolute; }
+    #errorbox { border-left: 20px solid red; }
+    section.trace {
+      overflow: hidden;
+      margin-top: 10px; border-top:3px dashed red;
+      background-color: @form_b;
+      table { 
+        font:12px Arial; color:black;
+        border-collapse:collapse; margin:1px 0;
+      }
+      td { border:1px solid #aaa; ;padding:1px 3px; line-height:11px; }
+      td.title { color:#000; background-color:#aaa; }
+      td.label { color:#a33;}
+      table.dbg_array { background-color:#ddeeff; font:12px Arial; }
+      table.dbg_object { background-color:#ffffaa; font:12px Arial; }
+    }
+  }
+}
+
+table.xdebug-error th { font-size: 10pt; background:white }

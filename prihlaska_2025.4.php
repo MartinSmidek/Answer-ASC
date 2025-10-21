@@ -1,8 +1,9 @@
 <?php
 /**
- * (c) 2025 Martin Smidek <martin@smidek.eu> - online přihlašování pro YMCA Setkání 
+ * (c) 2025 Martin Smidek <martin@smidek.eu> - online přihlašování pro YMCA Setkání a ASC
  * 
- * verze 2025.3
+ * 2025-10-21 v $_GET['org'] se při startu předá odkaz na složku s parametrizací podle organizace
+ * verze 2025.4
  * 2025-08-29 parametr p_css určuje vzhled vč. loga a (c) podle _cis*akce_prihl_css
  * 2025-08-27 text nad dětmi rozlišen podle typu M|O, oprava s_role dítěte s chůvou
  * 2025-03-27 volání z www.setkani.org s parametrem sid
@@ -14,10 +15,10 @@
  */
 // <editor-fold defaultstate="collapsed" desc=" -------------------------------------------------------- inicializace + seznam emailů pro ladění">
 // debuger je lokálne nastaven pro verze PHP: 7.2.33 - musí být ručně spuštěn Chrome
-$ORG= 1;  // verze pro YMCA Setkání
-$VERZE= 'asc'; // verze přihlášek: pro ASC
-$MINOR= '3'; // verze přihlášek: release
-$CORR_JS= '4'; // verze přihlášek: oprava JS nebo CSS části pro vynucený reload
+$VERZE= '2025'; // verze přihlášek: rok
+$MINOR= '4'; // verze přihlášek: release
+$CORR_JS= '1'; // verze přihlášek: oprava JS nebo CSS části pro vynucený reload
+$EZER= '3.3'; 
 $MYSELF= "prihlaska_$VERZE.$MINOR"; // $CORR_JS se používá pro vynucené natažení javascriptu
 $TEST_mail= '';
 //error_reporting(E_ALL);
@@ -33,33 +34,6 @@ error_reporting(0);
 set_error_handler(function ($severity, $message, $file, $line) {
     throw new ErrorException($message, 0, $severity, $file, $line);
 });
-
-// příklady emailových adres pro testování - POZOR jen pro $MAIL==0 !!!
-
-//$TEST_mail= 'martin@smidek.eu';               // v létě nebyli umí VPS
-//$TEST_mail= 'martin.smidek@gmail.com';
-//$TEST_mail= 'marie@smidkova.eu';
-//$TEST_mail= 'jakub@smidek.eu';
-//$TEST_mail= 'kancelar@setkani.org';           // v létě dělali VPS
-//$TEST_mail= 'zahradnicek@fnusa.cz';
-//$TEST_mail= 'petr.janda@centrum.cz';
-//$TEST_mail= 'p.kvapil@kvapil.cz';
-//$TEST_mail= 'bucek@fem.cz';
-//$TEST_mail= 'hanasmidkova@seznam.cz';
-//$TEST_mail= 'j-novotny@centrum.cz';
-//$TEST_mail= 'jslachtova@seznam.cz';
-//$TEST_mail= 'z.krtek@seznam.cz';
-//$TEST_mail= 'sequens@seznam.cz';              // oba osobní ale ten stejný
-//$TEST_mail= 'nemec_pavel@hotmail.com';        // oba jen rodinný
-//$TEST_mail= 'pavel.bajer@volny.cz';           // bezdětní
-//$TEST_mail= 'milada.barotova@gmail.com';      // vdova
-//$TEST_mail= 'lina.ondra@gmail.com';           // úmrtí dítěte
-//$TEST_mail= 'jandevaty9@seznam.cz';           // jedno dítě
-//$TEST_mail= 'petr.jekyll@gmail.com';          // v létě nebyli neumí VPS
-//$TEST_mail= 'zencakova@seznam.cz';            // duplicita
-//$TEST_mail= 'balous.petr@gmail.com';          // bez evidované manželky ale s rodinou
-//$TEST_mail= 'cahat@post.cz';                  // bez rodiny
-
 // </editor-fold>
 
 // ========================================================================== parametrizace aplikace
@@ -106,6 +80,8 @@ try {
 //   $MAIL:  1 - maily se posílají | 0 - mail se jen ukáže - lze nastavit url&mail=0
 //   $TEST:  0 - bez testování | 1 - výpis stavu a sql | 2 - neukládat | 3 - login s testovacím mailem
   $_TEST=  preg_match('/-test/',$_SERVER["SERVER_NAME"]) ? '_test' : '';
+  global $ORG;
+  require_once("prihlaska.org.php"); 
   $virgin= true;
   if (!count($_POST)) { // zde se proběhne jen poprvé
     $virgin= false;
@@ -113,7 +89,10 @@ try {
       die("Online přihlašování není k dispozici."); 
     }
     // detekce varianty: normální nebo testovací - buďto přihlášení do Answer nebo volání z webu
-    $ANSWER= $SID ? 1 : ($_SESSION[$_TEST?'dbt':'db2']['user_id']??0);
+    $ANSWER= $SID ? 1 : ($_SESSION[
+        $_TEST ? ($ORG->code==32 ? 'asc' : 'dbt') 
+               : ($ORG->code==32 ? 'asc' : 'db2') 
+        ]['user_id']??0);
     // odvození požadavku na test a ostrý mail
     $TEST= $_GET['test']??0 ? ($ANSWER?(0+$_GET['test']):0) : 0;
     $MAIL= $_GET['mail']??1 ? 1 : ($ANSWER?0:1);
@@ -228,7 +207,7 @@ catch (Throwable $e) {
   append_log("<b style='color:red'>CATCH</b> ".str_replace('<br>',' | ',$errpos));
   $errmsg= "Omlouváme se, během práce programu došlo k nečekané chybě."
   . "<br><br>Přihlaste se na akci  mailem zaslaným na kancelar@setkani.org."
-  . "<br>$akce->opravit_chybu"
+  . ($akce??0 ? "<br>$akce->opravit_chybu" : '')
   . ($TEST ? "<hr><i>příčina chyby je v logu, zde se vypíše jen pokud bylo zapnuto trasování ...</i>"
       . "<br>$errpos" : '');
   echo $errmsg;
@@ -264,7 +243,7 @@ function initialize($id_akce) {
   }
 }
 function polozky() { // -------------------------------------------------------------------- položky
-  global $akce, $MAIL, $TEST, $TEST_mail, $TEXT, $DOM_default, 
+  global $akce, $MAIL, $TEST, $TEST_mail, $TEXT, $DOM_default, $ORG, 
          $options, $sub_options, $p_fld, $r_fld, $o_fld;
   // popisné texty
   $TEXT= (object)[
@@ -276,15 +255,15 @@ function polozky() { // --------------------------------------------------------
           'Na uvedený mail vám byl zaslán PIN, opište jej vedle své mailové adresy.
            <br><i>(pokud PIN nedošel, podívejte se i složek Promoakce, Aktualizace, Spam, ...)</i>',  
       'usermail_nad3' => 
-          'Tento mail v evidenci YMCA Setkání nemáme, tato akce předpokládá, že jste se již nějaké naší 
-            akce zúčastnil/a, přihlaste se prosím pomocí toho, který jste tehdy použil/a',
+          "Tento mail v evidenci $ORG->name nemáme, tato akce předpokládá, že jste se již nějaké naší 
+            akce zúčastnil/a, přihlaste se prosím pomocí toho, který jste tehdy použil/a",
       'usermail_nad4' => 
           'Tento mail máme na základě předchozích přihlášek a účastí na našich akcích uvedený 
            ve více souvislostech - zvolte prosím správnou možnost.',
       'usermail_nad5' => 
-          'Tento mail v evidenci YMCA Setkání nemáme, pokud jste se již nějaké naší akce zúčastnili, 
+          "Tento mail v evidenci $ORG->name nemáme, pokud jste se již nějaké naší akce zúčastnili, 
            přihlaste se prosím pomocí mailu, který jste tehdy použil/a 
-           - pokud s námi budete poprvé, pokračujte registrací.',
+           - pokud s námi budete poprvé, pokračujte registrací.",
       'osoby_nad1' => 
           typ_akce('MOR') ? 'Poznačte, koho na akci přihlašujete. Zkontrolujte a případně upravte zobrazené údaje.' : (
           typ_akce('J') ? 'Zkontrolujte a případně doplňte své údaje.' : ''),  
@@ -1757,7 +1736,7 @@ function read_elems($elems,&$errs) { // ----------------------------------------
 
 function page() {
   global $MYSELF, $SID, $_TEST, $TEST, $TEST_mail, $TEXT, $DOM_default, $akce, $rel_root,
-      $VERZE, $MINOR, $CORR_JS;
+      $VERZE, $MINOR, $CORR_JS, $EZER, $ORG;
   $if_trace= $TEST ? "style='overflow:auto'" : '';
   $TEST_mail= $TEST_mail??'';
   $icon= "akce$_TEST.png";
@@ -1777,13 +1756,13 @@ function page() {
     <meta Content-Type="text/html" />
     <meta http-equiv="X-UA-Compatible" content="IE=11" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Přihláška na akci YMCA Setkání</title>
+    <title>Přihláška na akci $ORG->name</title>
     <link rel="shortcut icon" href="/db2/img/$icon" />
     <link rel="stylesheet" href="/less/$css$_TEST.css?verze=$CORR_JS" type="text/css" media="screen" charset='utf-8'>
-    <script src="/ezer3.2/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/ezer$EZER/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="$MYSELF.js?patch=$CORR_JS" type="text/javascript" charset="utf-8"></script>
     <link rel="stylesheet" id="customify-google-font-css" href="//fonts.googleapis.com/css?family=Open+Sans%3A300%2C300i%2C400%2C400i%2C600%2C600i%2C700%2C700i%2C800%2C800i&amp;ver=0.3.5" type="text/css" media="all">
-    <link rel="stylesheet" href="/ezer3.2/client/licensed/font-awesome/css/font-awesome.min.css?" type="text/css" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="/ezer$EZER/client/licensed/font-awesome/css/font-awesome.min.css?" type="text/css" media="screen" charset="utf-8">
     <script>
       var myself_url= "$rel_root/$MYSELF.php", myself_sid= "$SID";
       window.addEventListener('load', function() { 
@@ -1843,7 +1822,7 @@ function page() {
       </main>
       <footer>
         <div class="footer" style="display: flex;justify-content: space-between">
-          <span>© YMCA Setkání</span>
+          <span>© $ORG->name</span>
           <span>verze $VERZE.$MINOR.$CORR_JS </span>
         </div>
       </footer>
@@ -1855,7 +1834,8 @@ __EOD;
 }
 
 function connect_db() { // -------------------------------------------------------------- connect db
- global $_TEST, $ezer_server, $dbs, $db, $ezer_db, $USER, $kernel, $ezer_path_serv, $mysql_db_track, 
+ global $ezer_server, $dbs, $db, $ezer_db, $USER, $EZER, $ORG,
+     $kernel, $ezer_path_serv, $mysql_db_track, 
      $ezer_path_root, $abs_root, $answer_db, $mysql_tracked, $totrace, 
      $y; // $y je obecná stavová proměnná Ezer
   global $TEST;
@@ -1864,11 +1844,10 @@ function connect_db() { // -----------------------------------------------------
   ini_set('display_errors', 'On');
   // prostředí Ezer
   $USER= (object)['abbr'=>'WEB'];
-  $kernel= "ezer3.2";
+  $kernel= "ezer$EZER";
   $ezer_path_serv= "$kernel/server";
-  $deep_root= "../files/answer";
-  // testovací databáze a cesty např. $path_files_h
-  require_once($_TEST ? "$deep_root/dbt.dbs.php" : "$deep_root/db2.dbs.php"); // testovací nebo ostrá
+  // testovací nebo ostrá databáze a cesty např. $path_files_h
+  require_once("../files/$ORG->deep"); 
   $ezer_path_root= $abs_root;
   require_once("$kernel/server/ae_slib.php");
   require_once("$kernel/pdo.inc.php");
@@ -1887,13 +1866,15 @@ function connect_db() { // -----------------------------------------------------
   }
   $y= (object)[];
   // otevření databáze a redefine OBSOLETE
-  if (isset($dbs[$ezer_server])) $dbs= $dbs[$ezer_server];
-  if (isset($db[$ezer_server])) $db= $db[$ezer_server];
+  if (isset($dbs[$ezer_server])) { 
+    $dbs= $dbs[$ezer_server];
+    $db= $db[$ezer_server];
+  }
   $ezer_db= $dbs;
   ezer_connect($answer_db);
 } // napojení na Ezer a log
 function read_akce() { // ---------------------------------------------------------------- read akce
-  global $akce, $akce_default, $vars;
+  global $akce, $akce_default, $vars, $ORG;
   $msg= '';
   $id_akce= $vars->id_akce; //$_GET['akce'];
   // parametry přihlášky a ověření možnosti přihlášení
@@ -1941,11 +1922,11 @@ function read_akce() { // ------------------------------------------------------
   $akce->oba= "<p><i>Přihláška obsahuje otázky určené oběma manželům 
       - je potřeba, abyste ji vyplňovali společně.</i></p>";
   $akce->form_souhlas= " Vyplněním této přihlášky dáváme výslovný souhlas s použitím uvedených 
-      osobních údajů pro potřeby organizace akcí YMCA Setkání v souladu s Nařízením 
+      osobních údajů pro potřeby organizace akcí $ORG->name v souladu s Nařízením 
       Evropského parlamentu a Rady (EU) 2016/679 ze dne 27. dubna 2016 o ochraně 
       fyzických osob (GDPR) a zákonem č. 110/2019 Sb. ČR. Na našem webu naleznete 
       <a href='https://www.setkani.org/ymca-setkani/5860#anchor5860' target='show'>
-      podrobnou informací o zpracování osobních údajů v YMCA Setkání</a>.";
+      podrobnou informací o zpracování osobních údajů v $ORG->name</a>.";
   $akce->upozorneni= "Potvrzuji, že jsem byl@ upozorněn@, že není možné se účastnit pouze části kurzu, 
       že kurz není určen osobám závislým na alkoholu, drogách nebo jiných omamných látkách, ani
       osobám zatíženým neukončenou nevěrou, těžkou duševní nemocí či jiným omezením, která neumožňují 
@@ -2305,7 +2286,7 @@ function byli_na_aktualnim_LK($rodina) { // ----------------------------------- 
   list($byli,$jako)= select_2(
       "SELECT COUNT(*),IFNULL(IF(funkce IN (0,1,2),1,0),0)
        FROM pobyt JOIN akce ON id_akce=id_duakce 
-       WHERE akce.druh=1 AND akce.access=$ORG AND YEAR(akce.datum_od)=$rok_LK 
+       WHERE akce.druh=1 AND akce.access=$ORG->code AND YEAR(akce.datum_od)=$rok_LK 
          AND pobyt.i0_rodina='$rodina'");
   return intval($byli) ? $jako : 0;
 }
@@ -2968,7 +2949,7 @@ function log_close() { // ------------------------------------------------------
   log_write('close','NOW()');
 }
 function append_log($msg) { // ------------------------------------------------------ append error
-  global $AKCE, $VERZE, $MINOR, $CORR_JS, $TEST;
+  global $AKCE, $VERZE, $MINOR, $CORR_JS, $TEST, $EZER;
   $file= "prihlaska.log.php";
   $akce= $AKCE??'?';
   $idw= $_SESSION[$AKCE]->id_prihlaska??'?';
@@ -2983,11 +2964,11 @@ function append_log($msg) { // -------------------------------------------------
 <<<__EOS
 <?php 
   session_start(); 
-  if(!(\$_SESSION['db2']['user_id']??0) && !(\$_SESSION['dbt']['user_id']??0) && !isset(\$_GET['itsme'])) exit; 
+  if(!(\$_SESSION['ast']['user_id']??0) && !(\$_SESSION['db2']['user_id']??0) && !(\$_SESSION['dbt']['user_id']??0) && !isset(\$_GET['itsme'])) exit; 
 ?>
 <html><head><title>přihlášky</title>
 <link rel="shortcut icon" href="img/letter.png">
-<script src="http://answer-test.bean:8080/ezer3.2/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/ezer$EZER/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="$MYSELF.js?corr=$CORR_JS" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">window.addEventListener('load', function() { pretty_log();});</script>  
 </script>
@@ -3309,14 +3290,17 @@ function simple_mail($replyto,$address,$subject,$body,$cc='') {
 # odeslání mailu
 # $MAIL=0 zabrání odeslání, jen zobrazí mail v trasování
 # $_TEST zabrání posílání na garanta přes replyTo 
-  global $abs_root, $MAIL, $TEST, $_TEST, $DOM;
+  global $abs_root, $MAIL, $TEST, $_TEST, $DOM, $EZER, $ORG;
   $msg= 'ok';
-  $serverConfig= (object)[
-      'Host'       => 'smtp.gmail.com',
-      'Username'   => 'answer@setkani.org',
-      'files_path' => __DIR__.'/../files/setkani4',
-      'FromName'   => 'YMCA Setkání'
-    ];
+  $serverConfig= get_smtp($ORG->smtp);
+  if ($ORG->code==1) $serverConfig->files_path= __DIR__.'/../files/setkani4';
+  $serverConfig->FromName= $ORG->name;
+//  $serverConfig= (object)[
+//      'Host'       => 'smtp.gmail.com',
+//      'Username'   => 'answer@setkani.org',
+//      'files_path' => __DIR__.'/../files/setkani4',
+//      'FromName'   => 'YMCA Setkání'
+//    ];
   if ($TEST>1 || !$MAIL) {
     $DOM->mailbox= ['show',
         "<h3>Simulace odeslání mailu z adresy $serverConfig->Username &lt;$serverConfig->FromName&gt;</h3>"
@@ -3327,7 +3311,7 @@ function simple_mail($replyto,$address,$subject,$body,$cc='') {
     $msg= 'ok'; // TEST bez odeslání
   }
   else {
-    require_once "$abs_root/ezer3.2/server/ezer_mailer.php";
+    require_once "$abs_root/ezer$EZER/server/ezer_mailer.php";
     $mail= new Ezer_PHPMailer($serverConfig);
     if ( $mail->Ezer_error ) { 
       $msg= $mail->Ezer_error;
@@ -3358,6 +3342,16 @@ end:
   if ($msg!='ok') 
     log_error($msg);
   return $msg;
+}
+# získání parametrizace SMTP 
+function get_smtp($i_smtp) {
+  $smtp= (object)['err'=>'','json'=>null];
+  $smtp_json= select1_2('hodnota','_cis',"druh='smtp_srv' AND data=$i_smtp");
+  $smtp= json_decode($smtp_json);
+  if ( json_last_error() != JSON_ERROR_NONE ) {
+    $smtp->err= "chyba ve volbe SMTP serveru" . json_last_error_msg();
+  }
+  return $smtp;
 }
 // <editor-fold defaultstate="collapsed" desc=" ------------------------------------------------------ pomocné funkce + modifikovaná volání Ezer">
 function x($msg) {
@@ -3722,7 +3716,7 @@ function select1_2($expr,$table='',$cond='') { // ------------------------------
   $res= pdo_query_2($qry,1);
   if ( $res ) {
     $o= pdo_fetch_row($res);
-    $result= $o[0];
+    $result= $o ? $o[0] : '';
   }
   return $result;
 }
