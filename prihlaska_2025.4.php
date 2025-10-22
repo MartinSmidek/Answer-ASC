@@ -2,6 +2,7 @@
 /**
  * (c) 2025 Martin Smidek <martin@smidek.eu> - online přihlašování pro YMCA Setkání a ASC
  * 
+ * 2025-10-22 do R přidáno: p_reg_single, p_zadost, veta_zadost
  * 2025-10-21 v $_GET['org'] se při startu předá odkaz na složku s parametrizací podle organizace
  * verze 2025.4
  * 2025-08-29 parametr p_css určuje vzhled vč. loga a (c) podle _cis*akce_prihl_css
@@ -62,11 +63,10 @@ set_error_handler(function ($severity, $message, $file, $line) {
     'p_dokument'    =>  0, // M: LETNÍ KURZ MS: vytvořit PDF a uložit jako dokument k pobytu
   // -- jen pro jednotlivce
     'p_oso_adresa'  =>  0, // zadání osobní adresy, pokud není použije se rodinná ale změna se poptá zda jde o rodinnou nebo jen vlastní
-  // OBSOLETE
-    //'p_pro_LK'      =>  0, // pro manželský pár s dětmi a osobními pečovateli na LK MS
-    //'p_vps'         =>  0, // OBNOVA MS: nastavit funkci VPS podle letního kurzu
-    //'p_ukladat'     =>  0, // povolit znovunačtení při přihlášení
-    //'p_kontrola'    =>  0, // vynutit kontrolu dat před uložením
+  // -- jen pro typ R
+    'p_reg_single'  =>  0, // je povoleno registrovat se jako jednotlivec s osobní adresou
+    'p_zadost'      =>  0, //  
+    'veta_zadost'   =>  '',
   ]; 
 
 try {
@@ -345,6 +345,9 @@ function polozky() { // --------------------------------------------------------
       'sleva_zada'  =>[ 0,'Žádám o poskytnutí slevy','check_sleva'],
       'sleva_duvod' =>['64/4','* napište, proč žádáte o slevu','area'],
       'Xsouhlas'    =>[ 0,'*'.$akce->form_souhlas,'check_souhlas']],
+    typ_akce('R') && ($akce->p_zadost??0) ? [
+      'zadost'      =>[ 0,$akce->veta_zadost,'check'],
+    ] : [],
     typ_akce('MO') ? [
       'Xvps'        =>[15,'* služba na kurzu','select'], // bude vložena jen pro neodpočívající VPS
     ] : [],
@@ -1427,6 +1430,7 @@ function form_R($new) { trace();
         'rodina'=>$akce->p_rod_adresa,
         'strava'=>$akce->p_strava,  // 0=akce bez stravy, 1=tlačítko Objednávka, 2=seznam strav
         'pozn'=>1,
+        'zadost'=>$akce->p_zadost,
         'souhlas'=>$akce->p_souhlas,
     ];
     log_write_changes();  // zapiš počáteční skeleton form
@@ -1444,7 +1448,10 @@ function form_R($new) { trace();
   // -------------------------------------------- poznámky k pobytu
   $pobyt= '';
   if ($vars->form->pozn) {
-    $pobyt= elem_input('p',0,['pracovni']);
+    $pobyt.= elem_input('p',0,['pracovni']);
+  }
+  if ($vars->form->zadost) {
+    $pobyt.= elem_input('p',0,['zadost']);
   }
   // žádost o slevu
   if ($akce->p_sleva) {
@@ -1739,7 +1746,6 @@ function page() {
       $VERZE, $MINOR, $CORR_JS, $EZER, $ORG;
   $if_trace= $TEST ? "style='overflow:auto'" : '';
   $TEST_mail= $TEST_mail??'';
-  $icon= "akce$_TEST.png";
   $hide= "style='display:none'";
   $hide_2002= "style='display:none;z-index:2002'";
   $info= $DOM_default->info=='hide' ? '' : $DOM_default->info;
@@ -1757,7 +1763,7 @@ function page() {
     <meta http-equiv="X-UA-Compatible" content="IE=11" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Přihláška na akci $ORG->name</title>
-    <link rel="shortcut icon" href="/db2/img/$icon" />
+    <link rel="shortcut icon" href="$ORG->icon" />
     <link rel="stylesheet" href="/less/$css$_TEST.css?verze=$CORR_JS" type="text/css" media="screen" charset='utf-8'>
     <script src="/ezer$EZER/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="$MYSELF.js?patch=$CORR_JS" type="text/javascript" charset="utf-8"></script>
@@ -2951,12 +2957,11 @@ function log_close() { // ------------------------------------------------------
 function append_log($msg) { // ------------------------------------------------------ append error
   global $AKCE, $VERZE, $MINOR, $CORR_JS, $TEST, $EZER;
   $file= "prihlaska.log.php";
-  $akce= $AKCE??'?';
   $idw= $_SESSION[$AKCE]->id_prihlaska??'?';
   $email= $_SESSION[$AKCE]->email??'?';
   $ip= $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'];
   $x= $TEST==2 ? " TEST=2 " : "$VERZE.$MINOR/$CORR_JS";
-  $ida= strlen($akce)==6 ? substr($akce,2) : '????';
+  $ida= str_pad(substr($AKCE,2),4,' ',STR_PAD_LEFT);
   $msg= "$x $ida ".date('Y-m-d H:i:s').str_pad($idw,5,' ',STR_PAD_LEFT)." $msg mail=$email ip=$ip";
   if (!file_exists($file)) {
     global $MYSELF;
@@ -2967,7 +2972,7 @@ function append_log($msg) { // -------------------------------------------------
   if(!(\$_SESSION['ast']['user_id']??0) && !(\$_SESSION['db2']['user_id']??0) && !(\$_SESSION['dbt']['user_id']??0) && !isset(\$_GET['itsme'])) exit; 
 ?>
 <html><head><title>přihlášky</title>
-<link rel="shortcut icon" href="img/letter.png">
+<link rel="shortcut icon" href="img/log_icon.png">
 <script src="/ezer$EZER/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="$MYSELF.js?corr=$CORR_JS" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">window.addEventListener('load', function() { pretty_log();});</script>  

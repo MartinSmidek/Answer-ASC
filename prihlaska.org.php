@@ -10,5 +10,6 @@ $ORG= (object)[
   'code'  => 32,
   'smtp'  => 3,
   'name'  => 'ASC',
-  'deep'  => 'asc-test/asc.dbs.php',
+  'deep'  => 'asc-test/asc.dbs.php', // podsložka files
+  'icon'  => '/img/prihl_test_icon.png',
 ];
