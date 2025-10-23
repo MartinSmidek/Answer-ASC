@@ -22,6 +22,7 @@ $CORR_JS= '1'; // verze přihlášek: oprava JS nebo CSS části pro vynucený r
 $EZER= '3.3'; 
 $MYSELF= "prihlaska_$VERZE.$MINOR"; // $CORR_JS se používá pro vynucené natažení javascriptu
 $TEST_mail= '';
+define("EZER_VERSION",$EZER);
 //error_reporting(E_ALL);
 // session
 $SID= count($_POST) ? ($_POST['sid']??'') : ($_GET['sid']??'');
@@ -206,7 +207,7 @@ catch (Throwable $e) {
   }
   append_log("<b style='color:red'>CATCH</b> ".str_replace('<br>',' | ',$errpos));
   $errmsg= "Omlouváme se, během práce programu došlo k nečekané chybě."
-  . "<br><br>Přihlaste se na akci  mailem zaslaným na kancelar@setkani.org."
+  . "<br><br>Přihlaste se na akci  mailem zaslaným na {$ORG->info->mail}."
   . ($akce??0 ? "<br>$akce->opravit_chybu" : '')
   . ($TEST ? "<hr><i>příčina chyby je v logu, zde se vypíše jen pokud bylo zapnuto trasování ...</i>"
       . "<br>$errpos" : '');
@@ -1904,11 +1905,18 @@ function read_akce() { // ------------------------------------------------------
   $akce->dnu= $dnu+1;
   $akce->strava_oddo= $strava_oddo;
   $akce->cenik_verze= $cv; 
-  $MarketaZelinkova= 6849;
+//  $MarketaZelinkova= 6849;
+  if ($garant) {
   list($akce->garant_jmeno,$akce->garant_telefon,$akce->garant_mail)= // doplnění garanta
       select_2("CONCAT(jmeno,' ',prijmeni),telefon,email",
           "osoba LEFT JOIN _cis ON druh='akce_garant' AND data='$garant'",
-          "id_osoba=IFNULL(ikona,$MarketaZelinkova)");
+          "id_osoba=ikona");
+  }
+  else {
+    $akce->garant_jmeno=   $ORG->info->name;
+    $akce->garant_telefon= $ORG->info->tlfn;
+    $akce->garant_mail=    $ORG->info->mail;
+  }
   list($akce->garant_mail)= preg_split("/[,;]/",str_replace(' ','',$akce->garant_mail));
   $akce->help_kontakt= "$akce->garant_jmeno <a href='mailto:$akce->garant_mail'>$akce->garant_mail</a>"; 
   $akce->form_pata= "Je možné, že se vám během vyplňování objeví nějaká chyba, 
