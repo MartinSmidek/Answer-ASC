@@ -78,6 +78,17 @@ menu asc { type:'main', title:'asc', active:*, _sys:'*'
             info.fill('',ask('db2_kontrola_dat',i.par));
           }
         }
+        menu t {title:'Testovací databáze',type:'group', _sys:'*'
+          item {title:'obnovit testovací db z ostré', par:{db:'asc'}
+            func onclick (i:ezer) {
+              panel.display(2,'i'); info.display(0,'t'); clear();
+              if (confirm("vytvořit znovu testovací databázi z aktuálního stavu ostré databáze?")) {
+                info.header(i); info.Set(' ... probíhá update ...');
+                info.append(php.db2_copy_test_db(i.par.db)); 
+              }
+            }
+          }
+        }
       }
       use info: form right [12,4,,] {
       }
@@ -115,6 +126,28 @@ form right [,,*,*] {
     [ y; note.set(y) ]
   }
   proc append(x) { note.get; note.set(conc(note.get,'<br>',x)) | note.set(x) }
+}
+// univerzální formulář pro levostranné menu
+form right [,,*,*] {
+  label info [0,0,*,600] { title:'' style:'padding-right:10px'}
+  label head [0,0,*,50]  { title:'' style:'padding-right:10px'}
+  label note [0,50,,*] { title:'' style:'padding-right:10px;width:calc(100% - 15px)'}
+  func Set(x) {
+    head= ''; note= ''; info= x;
+  }
+  func fill(x,y) {
+    info= '';
+    if ( x ) head= `<div class='karta'>${replace_fa(x)}</div>`;
+    if ( y ) note= y
+  }
+  func append(x) {
+    note= conc(note,x)
+  }
+  func header(i:ezer) { var i_owner:ezer
+    clear(); i_owner= i.owner();
+    info= ''; note= '';
+    head= replace_fa(`<div class='karta'>${i_owner.title} - ${i.title}</div>`);
+  }
 }
 
 table akce { key_id:'id_duakce'

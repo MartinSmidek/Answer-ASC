@@ -1,0 +1,317 @@
+html {
+  height: 100%;
+}
+html body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: "Open Sans";
+  font-weight: 400;
+  font-size: 12pt;
+  background-color: #ffffff;
+}
+html body div.wrapper {
+  height: 100%;
+}
+html body div.wrapper header {
+  width: 100%;
+  /*height: @head_h;*/
+  background-color: #E2C0C2;
+  color: #000000;
+}
+html body div.wrapper header div.header {
+  max-width: 840px;
+  height: calc(120px - 40px);
+  margin: 0 auto;
+}
+html body div.wrapper header div.header a.logo {
+  position: absolute;
+  margin-top: 5px;
+}
+html body div.wrapper header div.header a.logo img {
+  max-height: 70px;
+}
+html body div.wrapper header div.header div.user {
+  position: relative;
+  float: right;
+  padding: 15px;
+  z-index: 1;
+  text-indent: -7px;
+  background-color: #E2C0C2;
+}
+html body div.wrapper header div.header div.info {
+  position: absolute;
+  z-index: 2;
+  margin-left: 150px;
+  background: yellow;
+  border: 3px solid red;
+  color: red;
+  padding: 0 5px;
+}
+html body div.wrapper header div.intro {
+  clear: both;
+  border-top: 3px solid white;
+  color: #000000;
+  padding-top: 6px;
+  font-size: 14pt;
+  text-align: center;
+  /*text-wrap: nowrap;*/
+}
+html body div.wrapper main {
+  max-width: 840px;
+  margin: 0 auto;
+  height: calc(100% - 120px - 50px);
+  overflow: auto;
+}
+html body div.wrapper main .chng {
+  outline: 2px solid red;
+  background: yellow;
+}
+html body div.wrapper main .chng_ok {
+  outline: 2px solid green;
+}
+html body div.wrapper main br {
+  clear: both;
+}
+html body div.wrapper main button {
+  font-family: "Open Sans";
+  font-size: 12pt;
+  margin-bottom: 5px;
+}
+html body div.wrapper main button .fa-red {
+  color: red;
+}
+html body div.wrapper main button .fa-green {
+  color: green;
+  font-weight: bold;
+}
+html body div.wrapper main div.box {
+  display: block;
+  margin: 10px;
+  padding: 10px;
+  background-color: #FDEFF1;
+}
+html body div.wrapper main div.box div.clen,
+html body div.wrapper main div.box div.solo,
+html body div.wrapper main div.box div.rodina {
+  display: table;
+  padding: 5px;
+  margin: 5px;
+  background: #f7c2c9;
+}
+html body div.wrapper main div.box div.clen .modal,
+html body div.wrapper main div.box div.solo .modal,
+html body div.wrapper main div.box div.rodina .modal {
+  z-index: 2001;
+  position: relative;
+  display: inline;
+}
+html body div.wrapper main div.box div.clen div.strava_rozpis,
+html body div.wrapper main div.box div.solo div.strava_rozpis,
+html body div.wrapper main div.box div.rodina div.strava_rozpis {
+  /*border-top: 1px solid black;*/
+  padding-top: 5px;
+}
+html body div.wrapper main div.box.modal-box {
+  padding: 0px;
+  margin: 0px;
+  background: transparent;
+  display: inline-block;
+}
+html body div.wrapper main div.box div.clen {
+  margin-left: 50px;
+  margin-top: 10px;
+  /*            span, div { margin:0px 0px 0px 10px; }*/
+}
+html body div.wrapper main div.box div.clen button {
+  float: right;
+  margin: 0px 10px -6px 0px;
+}
+html body div.wrapper main div.box div.paru {
+  margin: 10px 5px !important;
+}
+html body div.wrapper main div.box div.dary {
+  padding: 5px 10px;
+  margin: 10px 5px;
+  background-color: #ffffff;
+}
+html body div.wrapper main div.box div.cleni {
+  padding-left: 5px;
+  margin: 0 5px;
+  background-color: #fbdfe3;
+}
+html body div.wrapper main div.box input,
+html body div.wrapper main div.box select {
+  font-family: "Open Sans";
+  font-size: 12pt;
+  resize: none;
+}
+html body div.wrapper main div.box textarea {
+  width: 100%;
+  max-width: 100%;
+  font-family: "Open Sans";
+  font-size: 12pt;
+  resize: none;
+}
+html body div.wrapper main div.box label.upper {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 12px;
+}
+html body div.wrapper main div.box label.upper input,
+html body div.wrapper main div.box label.upper select,
+html body div.wrapper main div.box label.upper textarea {
+  display: block;
+  margin: 0 5px 5px -5px;
+}
+html body div.wrapper main div.box label.upper-area {
+  width: calc(100% - 20px);
+  float: left;
+  margin-left: 10px;
+  font-size: 12px;
+}
+html body div.wrapper main div.box label.upper-area input,
+html body div.wrapper main div.box label.upper-area select,
+html body div.wrapper main div.box label.upper-area textarea {
+  display: block;
+  margin: 0 5px 5px -5px;
+}
+html body div.wrapper main div.box label.check_spolu {
+  float: left;
+  margin-left: -55px;
+  font-size: 12px;
+}
+html body div.wrapper main div.box label.check_spolu input {
+  display: block;
+  margin: 5px 15px;
+}
+html body div.wrapper main div.box label.check_souhlas {
+  float: left;
+  font-size: 12px;
+}
+html body div.wrapper main div.box label.check_souhlas input {
+  display: block;
+  margin: 5px 15px;
+}
+html body div.wrapper main div.box div.check_sleva {
+  display: inline-block;
+  padding: 20px 0 0 10px;
+}
+html body div.wrapper main div.box div.check_sleva input {
+  margin: 5px 10px;
+}
+html body div.wrapper main div.box div.check {
+  display: inline-block;
+  padding: 5px;
+}
+html body div.wrapper main div.box select {
+  padding: 1px;
+}
+html body div.wrapper main div.box p.souhlas {
+  font-size: 12px;
+  clear: both;
+  font-style: italic;
+}
+html body div.wrapper main div.box span {
+  display: contents;
+  margin: 20px 5px 0 5px;
+  float: left;
+}
+html body div.wrapper main div.box .missing {
+  outline: 2px solid red;
+}
+html body div.wrapper main div.prosba {
+  padding: 0 40px;
+  font-size: 12px;
+  font-style: italic;
+}
+html body div.wrapper footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 50px;
+  margin: 0;
+  background: #312f38;
+  color: #f4f5f7;
+}
+html body div.wrapper footer div.footer {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 15px;
+  color: #f4f5f7;
+}
+html body div.popup {
+  z-index: 2001;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 20px;
+  border-left: 20px solid red;
+  background: #ffeeaa;
+  box-shadow: 5px 5px 10px 10px rgba(0, 0, 0, 0.5);
+}
+html body #popup_mask {
+  display: none;
+  z-index: 2000;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(51, 51, 51, 0.2);
+}
+html body #mailbox {
+  border-left: 20px solid grey;
+}
+html body #alertbox_back {
+  right: 10px;
+  top: 10px;
+  position: absolute;
+}
+html body #errorbox {
+  border-left: 20px solid red;
+}
+html body section.trace {
+  overflow: hidden;
+  margin-top: 10px;
+  border-top: 3px dashed red;
+  background-color: #FDEFF1;
+}
+html body section.trace table {
+  font: 12px Arial;
+  color: black;
+  border-collapse: collapse;
+  margin: 1px 0;
+}
+html body section.trace td {
+  border: 1px solid #aaa;
+  padding: 1px 3px;
+  line-height: 11px;
+}
+html body section.trace td.title {
+  color: #000;
+  background-color: #aaa;
+}
+html body section.trace td.label {
+  color: #a33;
+}
+html body section.trace table.dbg_array {
+  background-color: #ddeeff;
+  font: 12px Arial;
+}
+html body section.trace table.dbg_object {
+  background-color: #ffffaa;
+  font: 12px Arial;
+}
+table.xdebug-error th {
+  font-size: 10pt;
+  background: white;
+}
+/*@width:   800px;
+@foot_h:   50px;
+@head_h:  120px;*/
+/*@box_fs:  12pt;
+@box_fs2: 14pt;*/
+/*# sourceMappingURL=akce_test.css.map */

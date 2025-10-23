@@ -69,7 +69,7 @@
 
   // (re)definice Ezer.options
   $title= "$demo<span $title_style>$title_flag$app_name<sub style='font-size:55%'>$ezer_version</sub> "
-      . "Sdružení salesiánů spolupracovníků</span>";
+      . "ASC</span>";
   $add_pars= array(
     'favicon' => array("{$app}_local.png","{$app}.png","{$app}_dsm.png")[$ezer_server],
     'watch_key' => 1,   // true = povolit přístup jen po vložení klíče
