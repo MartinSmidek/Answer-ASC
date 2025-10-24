@@ -40,8 +40,8 @@ menu asc { type:'main', title:'asc', active:*, _sys:'*'
       }
       menu {type:'left', active:*
         menu {title:'Přehled',type:'group', _sys:'*'
-          item {title:'Záznamy', par:{org:'8',cmd:'show'}}
-          item {title:'Ulož ezer_answer.db_osoba', par:{org:'8',cmd:'save'}, skill:'m'}
+          item {title:'Záznamy', par:{org:'32',cmd:'show'}}
+          item {title:'Ulož ezer_answer.db_osoba', par:{org:'32',cmd:'save'}, skill:'m'}
           proc onclick (i) {
             clear; info.display(0,'t');
             info.fill(conc(i.owner.title,' - ',i.title),'... probíhá výpočet ...');
@@ -115,6 +115,28 @@ form right [,,*,*] {
     [ y; note.set(y) ]
   }
   proc append(x) { note.get; note.set(conc(note.get,'<br>',x)) | note.set(x) }
+}
+// univerzální formulář pro levostranné menu
+form right [,,*,*] {
+  label info [0,0,*,600] { title:'' style:'padding-right:10px'}
+  label head [0,0,*,50]  { title:'' style:'padding-right:10px'}
+  label note [0,50,,*] { title:'' style:'padding-right:10px;width:calc(100% - 15px)'}
+  func Set(x) {
+    head= ''; note= ''; info= x;
+  }
+  func fill(x,y) {
+    info= '';
+    if ( x ) head= `<div class='karta'>${replace_fa(x)}</div>`;
+    if ( y ) note= y
+  }
+  func append(x) {
+    note= conc(note,x)
+  }
+  func header(i:ezer) { var i_owner:ezer
+    clear(); i_owner= i.owner();
+    info= ''; note= '';
+    head= replace_fa(`<div class='karta'>${i_owner.title} - ${i.title}</div>`);
+  }
 }
 
 table akce { key_id:'id_duakce'

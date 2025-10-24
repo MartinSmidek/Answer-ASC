@@ -19,9 +19,9 @@
 $VERZE= '2025'; // verze přihlášek: rok
 $MINOR= '4'; // verze přihlášek: release
 $CORR_JS= '1'; // verze přihlášek: oprava JS nebo CSS části pro vynucený reload
-$EZER= '3.3'; 
 $MYSELF= "prihlaska_$VERZE.$MINOR"; // $CORR_JS se používá pro vynucené natažení javascriptu
 $TEST_mail= '';
+$ezer_version= '3.3';
 //error_reporting(E_ALL);
 // session
 $SID= count($_POST) ? ($_POST['sid']??'') : ($_GET['sid']??'');
@@ -206,7 +206,7 @@ catch (Throwable $e) {
   }
   append_log("<b style='color:red'>CATCH</b> ".str_replace('<br>',' | ',$errpos));
   $errmsg= "Omlouváme se, během práce programu došlo k nečekané chybě."
-  . "<br><br>Přihlaste se na akci  mailem zaslaným na kancelar@setkani.org."
+  . "<br><br>Přihlaste se na akci  mailem zaslaným na {$ORG->info->mail}."
   . ($akce??0 ? "<br>$akce->opravit_chybu" : '')
   . ($TEST ? "<hr><i>příčina chyby je v logu, zde se vypíše jen pokud bylo zapnuto trasování ...</i>"
       . "<br>$errpos" : '');
@@ -1743,7 +1743,7 @@ function read_elems($elems,&$errs) { // ----------------------------------------
 
 function page() {
   global $MYSELF, $SID, $_TEST, $TEST, $TEST_mail, $TEXT, $DOM_default, $akce, $rel_root,
-      $VERZE, $MINOR, $CORR_JS, $EZER, $ORG;
+      $VERZE, $MINOR, $CORR_JS, $ezer_version, $ORG;
   $if_trace= $TEST ? "style='overflow:auto'" : '';
   $TEST_mail= $TEST_mail??'';
   $hide= "style='display:none'";
@@ -1765,10 +1765,10 @@ function page() {
     <title>Přihláška na akci $ORG->name</title>
     <link rel="shortcut icon" href="$ORG->icon" />
     <link rel="stylesheet" href="/less/$css$_TEST.css?verze=$CORR_JS" type="text/css" media="screen" charset='utf-8'>
-    <script src="/ezer$EZER/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/ezer$ezer_version/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="$MYSELF.js?patch=$CORR_JS" type="text/javascript" charset="utf-8"></script>
     <link rel="stylesheet" id="customify-google-font-css" href="//fonts.googleapis.com/css?family=Open+Sans%3A300%2C300i%2C400%2C400i%2C600%2C600i%2C700%2C700i%2C800%2C800i&amp;ver=0.3.5" type="text/css" media="all">
-    <link rel="stylesheet" href="/ezer$EZER/client/licensed/font-awesome/css/font-awesome.min.css?" type="text/css" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="/ezer$ezer_version/client/licensed/font-awesome/css/font-awesome.min.css?" type="text/css" media="screen" charset="utf-8">
     <script>
       var myself_url= "$rel_root/$MYSELF.php", myself_sid= "$SID";
       window.addEventListener('load', function() { 
@@ -1840,7 +1840,7 @@ __EOD;
 }
 
 function connect_db() { // -------------------------------------------------------------- connect db
- global $ezer_server, $dbs, $db, $ezer_db, $USER, $EZER, $ORG,
+ global $ezer_server, $dbs, $db, $ezer_db, $USER, $ezer_version, $ORG,
      $kernel, $ezer_path_serv, $mysql_db_track, 
      $ezer_path_root, $abs_root, $answer_db, $mysql_tracked, $totrace, 
      $y; // $y je obecná stavová proměnná Ezer
@@ -1850,7 +1850,7 @@ function connect_db() { // -----------------------------------------------------
   ini_set('display_errors', 'On');
   // prostředí Ezer
   $USER= (object)['abbr'=>'WEB'];
-  $kernel= "ezer$EZER";
+  $kernel= "ezer$ezer_version";
   $ezer_path_serv= "$kernel/server";
   // testovací nebo ostrá databáze a cesty např. $path_files_h
   require_once("../files/$ORG->deep"); 
@@ -1904,11 +1904,18 @@ function read_akce() { // ------------------------------------------------------
   $akce->dnu= $dnu+1;
   $akce->strava_oddo= $strava_oddo;
   $akce->cenik_verze= $cv; 
-  $MarketaZelinkova= 6849;
+//  $MarketaZelinkova= 6849;
+  if ($garant) {
   list($akce->garant_jmeno,$akce->garant_telefon,$akce->garant_mail)= // doplnění garanta
       select_2("CONCAT(jmeno,' ',prijmeni),telefon,email",
           "osoba LEFT JOIN _cis ON druh='akce_garant' AND data='$garant'",
-          "id_osoba=IFNULL(ikona,$MarketaZelinkova)");
+          "id_osoba=ikona");
+  }
+  else {
+    $akce->garant_jmeno=   $ORG->info->name;
+    $akce->garant_telefon= $ORG->info->tlfn;
+    $akce->garant_mail=    $ORG->info->mail;
+  }
   list($akce->garant_mail)= preg_split("/[,;]/",str_replace(' ','',$akce->garant_mail));
   $akce->help_kontakt= "$akce->garant_jmeno <a href='mailto:$akce->garant_mail'>$akce->garant_mail</a>"; 
   $akce->form_pata= "Je možné, že se vám během vyplňování objeví nějaká chyba, 
@@ -2955,7 +2962,7 @@ function log_close() { // ------------------------------------------------------
   log_write('close','NOW()');
 }
 function append_log($msg) { // ------------------------------------------------------ append error
-  global $AKCE, $VERZE, $MINOR, $CORR_JS, $TEST, $EZER;
+  global $AKCE, $VERZE, $MINOR, $CORR_JS, $TEST, $ezer_version;
   $file= "prihlaska.log.php";
   $idw= $_SESSION[$AKCE]->id_prihlaska??'?';
   $email= $_SESSION[$AKCE]->email??'?';
@@ -2973,7 +2980,7 @@ function append_log($msg) { // -------------------------------------------------
 ?>
 <html><head><title>přihlášky</title>
 <link rel="shortcut icon" href="img/log_icon.png">
-<script src="/ezer$EZER/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/ezer$ezer_version/client/licensed/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="$MYSELF.js?corr=$CORR_JS" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">window.addEventListener('load', function() { pretty_log();});</script>  
 </script>
@@ -3077,8 +3084,11 @@ function souhrn($ucel) {
   if (typ_akce('MO') && isset($vars->pobyt->Xvps)) {
     $vps= get('p','Xvps')==1 ? "<p>Děkujeme, že přijímáte službu VPS.</p>" : '';
   }
-  // doplnění poznámky a případné žádosti o slevu
+  // případné žádosti, poznámky a žádosti o slevu
   $pozn= get('p','pracovni');
+  if ($akce->p_zadost && get('p','zadost')) {
+    $pozn= $pozn ? "$akce->veta_zadost, $pozn" : $akce->veta_zadost;
+  }
   // přípony plurál/singulár
   $eme= $ucel=='kontrola'? (typ_akce('J') ? 'i' : 'eme') : 'ete'; 
   $ame= $ucel=='kontrola'? (typ_akce('J') ? 'ám' : 'áme') : 'áte'; 
@@ -3295,7 +3305,7 @@ function simple_mail($replyto,$address,$subject,$body,$cc='') {
 # odeslání mailu
 # $MAIL=0 zabrání odeslání, jen zobrazí mail v trasování
 # $_TEST zabrání posílání na garanta přes replyTo 
-  global $abs_root, $MAIL, $TEST, $_TEST, $DOM, $EZER, $ORG;
+  global $abs_root, $MAIL, $TEST, $_TEST, $DOM, $ezer_version, $ORG;
   $msg= 'ok';
   $serverConfig= get_smtp($ORG->smtp);
   if ($ORG->code==1) $serverConfig->files_path= __DIR__.'/../files/setkani4';
@@ -3316,7 +3326,7 @@ function simple_mail($replyto,$address,$subject,$body,$cc='') {
     $msg= 'ok'; // TEST bez odeslání
   }
   else {
-    require_once "$abs_root/ezer$EZER/server/ezer_mailer.php";
+    require_once "$abs_root/ezer$ezer_version/server/ezer_mailer.php";
     $mail= new Ezer_PHPMailer($serverConfig);
     if ( $mail->Ezer_error ) { 
       $msg= $mail->Ezer_error;
