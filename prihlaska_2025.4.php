@@ -2,7 +2,8 @@
 /**
  * (c) 2025 Martin Smidek <martin@smidek.eu> - online přihlašování pro YMCA Setkání a ASC
  * 
- * 2025-10-22 do R přidáno: p_reg_single, p_zadost, veta_zadost
+ * 2025-10-25 do R přidáno p_reg_single pro registraci jako single v rodinné přihlášce
+ * 2025-10-22 do R přidáno zaskrtávací položka p_zadost s textem veta_zadost
  * 2025-10-21 v $_GET['org'] se při startu předá odkaz na složku s parametrizací podle organizace
  * verze 2025.4
  * 2025-08-29 parametr p_css určuje vzhled vč. loga a (c) podle _cis*akce_prihl_css
@@ -63,8 +64,10 @@ set_error_handler(function ($severity, $message, $file, $line) {
     'p_dokument'    =>  0, // M: LETNÍ KURZ MS: vytvořit PDF a uložit jako dokument k pobytu
   // -- jen pro jednotlivce
     'p_oso_adresa'  =>  0, // zadání osobní adresy, pokud není použije se rodinná ale změna se poptá zda jde o rodinnou nebo jen vlastní
-  // -- jen pro typ R
-    'p_reg_single'  =>  0, // je povoleno registrovat se jako jednotlivec s osobní adresou
+  // -- jen pro registraci na akci J
+//    'p_reg_rodina'  =>  0, // je povolena registrace rodiny ... TODO
+  // -- jen pro registraci na akci R
+    'p_reg_single'  =>  0, // je povolena registrace single 
     'p_zadost'      =>  0, //  
     'veta_zadost'   =>  '',
   ]; 
@@ -587,15 +590,37 @@ function kontrola_pinu($pin,$ignorovat_rozepsanou=0) { trace();
     } // nejednoznačný mail      
   }
 end:  
-} // overit pin
+} // kontrola_pinu
 // -------------------------------------------------------------------------------------- registrace
 function registrace($gender) { trace();
 # $ano=1/2 pokračujeme s registrací jako muž nebo žena
 # $ano=0 pokračujeme s žádostí o jiný mail
-  global $DOM;
+# pokud je povolena akce poptá se single/rodina
+  global $DOM, $akce;
   $DOM->usermail= 'hide';
-  return klient("-$gender/0",1); // nová přihláška + zvolený gender přihlašovaného
+  // je umožněna změna typu akce rodina/jednotlivec?
+  if (
+//      $akce->p_reg_rodina && typ_akce('J') ||  ... TODO
+      $akce->p_reg_single && typ_akce('R') ) {
+    vyber('Chci registrovat',[
+        "jen sebe:registrace_jako:=J,=$gender",
+        "také členy rodiny:registrace_jako:=R,=$gender"]);
+  }
+  else {
+    return klient("-$gender/0",1); // nová přihláška + zvolený gender přihlašovaného
+  }
 } // registrace
+// ------------------------------------------------------------------ registrace se změnou typu akce
+function registrace_jako($typ_akce,$gender) { trace();
+  global $vars, $akce;
+  $vars->typ_akce= $typ_akce;
+//  if ($typ_akce=='R' && $akce->p_oso_adresa) {
+//    $akce->p_rod_adresa= 1;
+//    $akce->p_oso_adresa= 0;
+//  }
+  polozky();
+  return klient("-$gender/0",1); // nová přihláška + zvolený gender přihlašovaného
+}
 // ------------------------------------------------------------------------------------------ klient
 function klient($idor,$nova_prihlaska=1) { trace();
 # $id je nositelem přihlašovacího mailu
@@ -1954,8 +1979,8 @@ end:
   }
 } // doplnění infromací o akci
 function typ_akce($typs) { // ------------------------------------- vrátí 1 pokud je p_typ v řetězci
-  global $akce;
-  return strpos($typs,$akce->p_typ)===false ? 0 : 1;
+  global $akce, $vars;
+  return strpos($typs,$vars->typ_akce??$akce->p_typ)===false ? 0 : 1;
 } // vrátí 1 pokud je p_typ v řetězci
 # ------------------------------------------------------------------------------- formulářové funkce
 function get_role($id) { // --------------------------------------------------------------- get role
