@@ -17,7 +17,7 @@
  */
 // <editor-fold defaultstate="collapsed" desc=" -------------------------------------------------------- inicializace + seznam emailů pro ladění">
 // debuger je lokálne nastaven pro verze PHP: 7.2.33 - musí být ručně spuštěn Chrome
-$VERZE= '2025'; // verze přihlášek: rok
+$VERZE= 'asc'; // verze přihlášek: rok
 $MINOR= '4'; // verze přihlášek: release
 $CORR_JS= '1'; // verze přihlášek: oprava JS nebo CSS části pro vynucený reload
 $MYSELF= "prihlaska_$VERZE.$MINOR"; // $CORR_JS se používá pro vynucené natažení javascriptu
@@ -1507,7 +1507,7 @@ function form_R($new) { trace();
   }
   
   // Kolik noclehů?
-  if ($vars->form->zadost) {
+  if ($vars->form->ubyt_prg) {
     $pobyt.= '<div><b>Počet noclehů</b>' . elem_input('p',0,['pocet4','pocet5']) . '</div>';
   }
 
@@ -1575,7 +1575,7 @@ function form_J($new) { trace();
   }
   
   // Kolik noclehů?
-  if ($vars->form->zadost) {
+  if ($vars->form->ubyt_prg) {
     $pobyt.= '<div><b>Počet noclehů</b>' . elem_input('p',0,['pocet4','pocet5']) . '</div>';
   }
 
