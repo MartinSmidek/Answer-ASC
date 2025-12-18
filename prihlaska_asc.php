@@ -17,4 +17,4 @@
 //}
 
 //$_GET['org']= 'asc-test/asc';
-require_once("prihlaska_2025.4.php"); 
+require_once("prihlaska_2025.4.ASC.php"); 

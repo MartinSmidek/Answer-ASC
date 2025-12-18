@@ -68,9 +68,14 @@ set_error_handler(function ($severity, $message, $file, $line) {
 //    'p_reg_rodina'  =>  0, // je povolena registrace rodiny ... TODO
   // -- jen pro registraci na akci R
     'p_reg_single'  =>  0, // je povolena registrace single 
-    'p_ubyt_prg' => 0, // zobrazí se políčka pro víkendovou akci - ubytování a program po jednotlivých dnech  
+    'p_ubyt_prg' => 0, // zobrazí se políčka pro víkendovou akci - ubytování a strava po jednotlivých dnech  
     'p_zadost'      =>  0, //  
     'veta_zadost'   =>  '',
+    'p_pocet1'      =>  0,
+    'p_pocet2'      =>  0,
+    'p_pocet3'      =>  0,
+    'p_pocet4'      =>  0,
+    'p_pocet5'      =>  0,
   ]; 
 
 try {
@@ -285,6 +290,7 @@ function polozky() { // --------------------------------------------------------
           "<b>Objednáváme stravu:</b> snídani, oběd, večeři (dětem od $akce->p_detska_od "
           . "do $akce->p_detska_do let poloviční porce);"
           . '<br>nebo ji můžete jmenovitě upravit, případně vybrat dietu.',
+      'ubytovani_a_program' => 'Uveďte počet účastníků na programu v pátek, sobotu a neděli. Také uveďte počet noclehů z páku na sobotu a ze soboty na neděli.',
       'rozlouceni1' => 
           'Přejeme Vám hezký den.',
       'rozlouceni2' => 
@@ -349,8 +355,15 @@ function polozky() { // --------------------------------------------------------
       'sleva_zada'  =>[ 0,'Žádám o poskytnutí slevy','check_sleva'],
       'sleva_duvod' =>['64/4','* napište, proč žádáte o slevu','area'],
       'Xsouhlas'    =>[ 0,'*'.$akce->form_souhlas,'check_souhlas']],
-    typ_akce('R') && ($akce->p_zadost??0) ? [
+    typ_akce('JR') && ($akce->p_zadost??0) ? [
       'zadost'      =>[ 0,$akce->veta_zadost,'check'],
+    ] : [],
+    typ_akce('JR') && ($akce->p_ubyt_prg??0) ? [
+      'pocet1'      =>[ 5,'pátek',''],
+      'pocet2'      =>[ 5,'sobota',''],
+      'pocet3'      =>[ 5,'neděle',''],
+      'pocet4'      =>[ 5,'pátek',''],
+      'pocet5'      =>[ 5,'sobota',''],
     ] : [],
     typ_akce('MO') ? [
       'Xvps'        =>[15,'* služba na kurzu','select'], // bude vložena jen pro neodpočívající VPS
@@ -359,7 +372,7 @@ function polozky() { // --------------------------------------------------------
       'Xstrava_s'   =>[ 0,'snídaně','check'],
       'Xstrava_o'   =>[ 0,'obědy','check'],
       'Xstrava_v'   =>[ 0,'večeře','check'],
-    ] : []
+    ] : [],
   );
   $r_fld= array_merge(
     [ // položky tabulky RODINA
@@ -1457,6 +1470,12 @@ function form_R($new) { trace();
         'strava'=>$akce->p_strava,  // 0=akce bez stravy, 1=tlačítko Objednávka, 2=seznam strav
         'pozn'=>1,
         'zadost'=>$akce->p_zadost,
+        'ubyt_prg'=>$akce->p_ubyt_prg,
+        'pocet1'=>$akce->p_ubyt_prg,
+        'pocet2'=>$akce->p_ubyt_prg,
+        'pocet3'=>$akce->p_ubyt_prg,
+        'pocet4'=>$akce->p_ubyt_prg,
+        'pocet5'=>$akce->p_ubyt_prg,
         'souhlas'=>$akce->p_souhlas,
     ];
     log_write_changes();  // zapiš počáteční skeleton form
@@ -1476,9 +1495,22 @@ function form_R($new) { trace();
   if ($vars->form->pozn) {
     $pobyt.= elem_input('p',0,['pracovni']);
   }
+  
+  // Účast na programu
+  if ($vars->form->ubyt_prg) {
+    $pobyt.= '<div><b>Počet účastníků na programu</b>' . elem_input('p',0,['pocet1','pocet2','pocet3']) . '</div>';
+  }
+
+  // Chci ubytování?
   if ($vars->form->zadost) {
     $pobyt.= elem_input('p',0,['zadost']);
   }
+  
+  // Kolik noclehů?
+  if ($vars->form->zadost) {
+    $pobyt.= '<div><b>Počet noclehů</b>' . elem_input('p',0,['pocet4','pocet5']) . '</div>';
+  }
+
   // žádost o slevu
   if ($akce->p_sleva) {
     $pobyt.= elem_input('p',0,['sleva_zada']) . elem_input('p',0,['sleva_duvod'],1);
@@ -1513,6 +1545,13 @@ function form_J($new) { trace();
         'typ'=>$akce->p_typ, // M O R J
         'kontrola'=>[], // seznam položek s chybou
         'pozn'=>1,
+        'zadost'=>$akce->p_zadost,
+        'ubyt_prg'=>$akce->p_ubyt_prg,
+        'pocet1'=>$akce->p_ubyt_prg,
+        'pocet2'=>$akce->p_ubyt_prg,
+        'pocet3'=>$akce->p_ubyt_prg,
+        'pocet4'=>$akce->p_ubyt_prg,
+        'pocet5'=>$akce->p_ubyt_prg,
         'souhlas'=>$akce->p_souhlas,
     ];
     log_write_changes();  // zapiš počáteční skeleton form
@@ -1524,6 +1563,22 @@ function form_J($new) { trace();
   if ($vars->form->pozn) {
     $pobyt= elem_input('p',0,['pracovni']);
   }
+   
+  // Účast na programu
+  if ($vars->form->ubyt_prg) {
+    $pobyt.= '<div><b>Počet účastníků na programu</b>' . elem_input('p',0,['pocet1','pocet2','pocet3']) . '</div>';
+  }
+  
+  // Chci ubytování?
+  if ($vars->form->zadost) {
+    $pobyt.= elem_input('p',0,['zadost']);
+  }
+  
+  // Kolik noclehů?
+  if ($vars->form->zadost) {
+    $pobyt.= '<div><b>Počet noclehů</b>' . elem_input('p',0,['pocet4','pocet5']) . '</div>';
+  }
+
   // žádost o slevu
   if ($akce->p_sleva) {
     $pobyt.= elem_input('p',0,['sleva_zada']) . elem_input('p',0,['sleva_duvod'],1);
@@ -3115,6 +3170,23 @@ function souhrn($ucel) {
   if ($akce->p_zadost && get('p','zadost')) {
     $pozn= $pozn ? "$akce->veta_zadost, $pozn" : $akce->veta_zadost;
   }
+  
+  //if ($akce->p_pocet1 && get('p','pocet1')) {
+  //  $pozn= $pozn ? "$akce->veta_pocet1, $pozn" : $akce->veta_pocet1;
+ // }
+  //if ($akce->p_pocet2 && get('p','pocet2')) {
+  //  $pozn= $pozn ? "$akce->veta_pocet2, $pozn" : $akce->veta_pocet2;
+ // }
+  //if ($akce->p_pocet3 && get('p','pocet3')) {
+  //  $pozn= $pozn ? "$akce->veta_pocet3, $pozn" : $akce->veta_pocet3;
+  //}
+  //if ($akce->p_pocet4 && get('p','pocet4')) {
+  //  $pozn= $pozn ? "$akce->veta_pocet4, $pozn" : $akce->veta_pocet4;
+  //}
+  //if ($akce->p_pocet5 && get('p','pocet5')) {
+  //  $pozn= $pozn ? "$akce->veta_pocet5, $pozn" : $akce->veta_pocet5;
+  //}
+  
   // přípony plurál/singulár
   $eme= $ucel=='kontrola'? (typ_akce('J') ? 'i' : 'eme') : 'ete'; 
   $ame= $ucel=='kontrola'? (typ_akce('J') ? 'ám' : 'áme') : 'áte'; 
