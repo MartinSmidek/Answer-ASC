@@ -1,6 +1,6 @@
 <?php
 /**
- * (c) 2025 Martin Smidek <martin@smidek.eu> - online přihlašování pro YMCA Setkání a ASC
+ * (c) 2025 Ondra Lednický <ondrej.lednickyascczech.cz> - online přihlašování pro ASC
  * 
  * 2025-10-25 do R přidáno p_reg_single pro registraci jako single v rodinné přihlášce
  * 2025-10-22 do R přidáno zaskrtávací položka p_zadost s textem veta_zadost
@@ -71,12 +71,12 @@ set_error_handler(function ($severity, $message, $file, $line) {
     'p_ubyt_prg' => 0, // zobrazí se políčka pro víkendovou akci - ubytování a strava po jednotlivých dnech  
     'p_zadost'      =>  0, //  
     'veta_zadost'   =>  '',
-    'p_pocet1'      =>  0,
-    'p_pocet2'      =>  0,
-    'p_pocet3'      =>  0,
-    'p_pocet4'      =>  0,
-    'p_pocet5'      =>  0,
-    'p_ucast_turnaj'  => 0,
+//  'p_pocet1'      =>  0,
+//  'p_pocet2'      =>  0,
+//  'p_pocet3'      =>  0,
+//  'p_pocet4'      =>  0,
+//  'p_pocet5'      =>  0,
+//  'p_turnaj'      => 0,
   ]; 
 
 try {
@@ -357,7 +357,6 @@ function polozky() { // --------------------------------------------------------
       'sleva_duvod' =>['64/4','* napište, proč žádáte o slevu','area'],
       'Xsouhlas'    =>[ 0,'*'.$akce->form_souhlas,'check_souhlas']],
     typ_akce('JR') && ($akce->p_zadost??0) ? [
-      'ucast_turnaj' =>['64/2','Sem napište jména a věk členů rodiny, kteří se zůčasní fotbalového turnaje' ,'area'],
       'zadost'      =>[ 0,$akce->veta_zadost,'check'],
     ] : [],
     typ_akce('JR') && ($akce->p_ubyt_prg??0) ? [
@@ -443,6 +442,9 @@ function polozky() { // --------------------------------------------------------
     ] : [],
     typ_akce('MO') && ($akce->p_nocleh??0) ? [
       'Xnocleh'   =>[20,'nocleh','select','abdp'],
+    ] : [],
+    typ_akce('RJ') && ($akce->p_zadost??0) ? [
+      'Xturnaj'   =>[0,'Budu hrát fotbalový turnaj','check','abdp'],
     ] : []
   );
   // případné opravy podle akce
@@ -1072,6 +1074,13 @@ function form_manzele() { trace(); // ------------------------------------------
           . str_replace('@',$role=='b'?'a':'',$akce->upozorneni)
           . "</label></p>"
           : '';
+        $turnaj= $akce->p_zadost
+          ? "<p class='souhlas'>"
+            . "<input type='checkbox' id='o_{$id}_Xturnaj' value='' onchange='elem_changed(this);' "
+          . (get('o','Xturnaj',$id) ? 'checked' : '')
+          . " ><label for='o_{$id}_Xturnaj' class='souhlas'>"
+          . "</label>Chci se zúčastnit fotbalového turnaje</p>"
+          : '';
         $clenove.= "<div id='$clen_ID' class='clen'>" 
           . ( $id>0
               ? ''
@@ -1093,6 +1102,7 @@ function form_manzele() { trace(); // ------------------------------------------
           . ($akce->p_obcanky ? elem_input('o',$id,['obcanka']) : '')
 //          . $strava
           . '<br>' . $vlastnosti 
+          . $turnaj
           . $upozorneni
           . "</div>";
       }
@@ -1104,7 +1114,7 @@ function form_manzele() { trace(); // ------------------------------------------
 function form_deti($detail) {trace(); // -------------------------------------------- zobrazení dětí
   # detail=1 ... tlačítko [zobraz děti]
   # detail=2 ... děti a tlačítko [nové dítě] a tlačítko [zobraz pečouny]
-  global $TEXT, $DOM, $vars;
+  global $TEXT, $DOM, $vars, $akce;
   $part= '';
   if ($detail==1) {
     $part.= "<br><button onclick=\"php2('form_deti,=2');\" >
@@ -1120,6 +1130,13 @@ function form_deti($detail) {trace(); // ---------------------------------------
       if (!in_array(get_role($id),typ_akce('R') ? ['d'] : ['d'])) continue;
       $pecoun_button= $pecoun_form= '';
       $spolu= get('o','spolu',$id);
+      $turnaj_dite= $akce->p_zadost
+          ? "<p class='souhlas'>"
+            . "<input type='checkbox' id='o_{$id}_Xturnaj' value='' onchange='elem_changed(this);' "
+          . (get('o','Xturnaj',$id) ? 'checked' : '')
+          . " ><label for='o_{$id}_Xturnaj' class='souhlas'>"
+          . "</label>Chce se zúčastnit fotbalového turnaje</p>"
+          : '';
       // příprava osobního pečovatele - pokud jsou povoleni 
       if ($vars->form->pecouni ?? 0) { // jsou povoleni
         $display= $spolu ? "style='display:block'" : "style='display:none'";
@@ -1157,6 +1174,7 @@ function form_deti($detail) {trace(); // ---------------------------------------
           . elem_input('o',$id,['spolu'])
           . elem_text_or_input('o',$id,['<span>','jmeno',' ','prijmeni',', ','narozeni',', ', 'role','</span>'])
           . elem_input('o',$id,['note'])
+          . $turnaj_dite
 //          . $strava
           . $pecoun_form
           . "</div>";
@@ -1166,6 +1184,7 @@ function form_deti($detail) {trace(); // ---------------------------------------
         $deti_nove.= "<div id='$clen_ID' class='clen'>" 
           . $pecoun_button
           . elem_input('o',$id,['spolu','jmeno','prijmeni','narozeni','note'])
+          . $turnaj_dite
 //          . $strava
           . $pecoun_form
           . "</div>";
@@ -1368,6 +1387,13 @@ function form_solo($id) { trace(); // -------------------------------- zobrazen�
   global $akce;
   $clen_ID= "c_$id"; 
   $role= get_role($id);
+  $turnaj_solo= $akce->p_zadost
+          ? "<p class='souhlas'>"
+            . "<input type='checkbox' id='o_{$id}_Xturnaj' value='' onchange='elem_changed(this);' "
+          . (get('o','Xturnaj',$id) ? 'checked' : '')
+          . " ><label for='o_{$id}_Xturnaj' class='souhlas'>"
+          . "</label>Chci se zúčastnit fotbalového turnaje</p>"
+          : '';
   $part= "<div id='$clen_ID' class='solo'>"
       . ( $id>0
           ? elem_text_or_input('o',$id,['<div>','jmeno',' ','prijmeni']) 
@@ -1381,6 +1407,7 @@ function form_solo($id) { trace(); // -------------------------------- zobrazen�
       . elem_input('o',$id,['email','telefon']) 
       . ($akce->p_obcanky ? elem_input('o',$id,['obcanka']) : '')
       . ($akce->p_oso_adresa ? '<br>'.elem_input('o',$id,['ulice','psc','obec']) : '')
+      . $turnaj_solo
       . "</div>";
   return $part;
 } // form osoba
@@ -1471,7 +1498,6 @@ function form_R($new) { trace();
         'rodina'=>$akce->p_rod_adresa,
         'strava'=>$akce->p_strava,  // 0=akce bez stravy, 1=tlačítko Objednávka, 2=seznam strav
         'pozn'=>1,
-        'ucast_turnaj'=>$akce->p_ucast_turnaj,
         'zadost'=>$akce->p_zadost,
         'ubyt_prg'=>$akce->p_ubyt_prg,
         'pocet1'=>$akce->p_ubyt_prg,
@@ -1479,13 +1505,14 @@ function form_R($new) { trace();
         'pocet3'=>$akce->p_ubyt_prg,
         'pocet4'=>$akce->p_ubyt_prg,
         'pocet5'=>$akce->p_ubyt_prg,
-        'souhlas'=>$akce->p_souhlas,
+        'souhlas'=>$akce->p_souhlas
     ];
     log_write_changes();  // zapiš počáteční skeleton form
   }
   // -------------------------------------------- úprava rodinné adresy
   $zacatek= '';
   if ($vars->form->rodina) {
+      
     $zacatek= "<p>Zapište, nebo zkontrolujte a případně upravte vaši rodinnou adresu a další údaje:</p>";
     $idr= key($vars->rodina);
     if ($idr<0) { // požadujeme název rodiny
@@ -1497,11 +1524,6 @@ function form_R($new) { trace();
   $pobyt= '';
   if ($vars->form->pozn) {
     $pobyt.= elem_input('p',0,['pracovni']);
-  }
- 
-    // Chci se účastnit 
-  if ($vars->form->zadost) {
-    $pobyt.=  '<div><b>Fotbalový turnaj</b>' . elem_input('p',0,['ucast_turnaj']);
   }
   
   // Účast na programu
@@ -1556,7 +1578,6 @@ function form_J($new) { trace();
         'typ'=>$akce->p_typ, // M O R J
         'kontrola'=>[], // seznam položek s chybou
         'pozn'=>1,
-        'ucast_turnaj'=>$akce->p_ucast_turnaj,
         'zadost'=>$akce->p_zadost,
         'ubyt_prg'=>$akce->p_ubyt_prg,
         'pocet1'=>$akce->p_ubyt_prg,
@@ -1564,7 +1585,7 @@ function form_J($new) { trace();
         'pocet3'=>$akce->p_ubyt_prg,
         'pocet4'=>$akce->p_ubyt_prg,
         'pocet5'=>$akce->p_ubyt_prg,
-        'souhlas'=>$akce->p_souhlas,
+        'souhlas'=>$akce->p_souhlas
     ];
     log_write_changes();  // zapiš počáteční skeleton form
   }
@@ -1575,12 +1596,7 @@ function form_J($new) { trace();
   if ($vars->form->pozn) {
     $pobyt= elem_input('p',0,['pracovni']);
   }
-
-      // Chci se účastnit 
-  if ($vars->form->zadost) {
-    $pobyt.=  '<div><b>Fotbalový turnaj</b>' . elem_input('p',0,['ucast_turnaj']);
-  }
-  
+ 
   // Účast na programu
   if ($vars->form->ubyt_prg) {
     $pobyt.= '<div><b>Počet účastníků na programu</b>' . elem_input('p',0,['pocet1','pocet2','pocet3']) . '</div>';
@@ -2024,8 +2040,8 @@ function read_akce() { // ------------------------------------------------------
   $akce->id_akce= $id_akce;
   $akce->ohlasit_chybu= "Pokud se Vám během vyplňování přihlášky objeví nějaká chyba, přijměte prosím naši omluvu.";
   $akce->opravit_chybu= "<br>Abychom chybu mohli opravit, napište prosím "
-      . "<a target='mail' href='mailto:martin@smidek.eu?subject=Přihláška 2025'>autorovi</a> "
-      . " a popište problém. Můžete mu také ještě od počítače zavolat na 603 150 565 (za denního světla, prosím). "
+      . "<a target='mail' href='mailto:ondrej.lednicky@ascczech.cz?subject=Přihláška 150 let ASC - chyba'>autorovi</a> "
+      . " a popište problém. Můžete mu také ještě od počítače zavolat na 734 647 785 (za denního světla, prosím). "
       . "Pomůžete tím těm, kteří se budou přihlašovat po Vás. Děkujeme.";
   $akce->preambule= "Tyto údaje slouží pouze pro vnitřní potřebu organizátorů kurzu MS, 
       nejsou poskytovány cizím osobám ani institucím.<br /> <b>Pro vaši spokojenost během kurzu je 
@@ -2370,7 +2386,7 @@ function vytvor_web_json() { // ------------------------------------------------
   foreach ($vars->cleni as $id=>$clen) {
     foreach ((array)$clen as $f=>$v) {
       if (!in_array($f,
-        ['spolu','Xpovaha','Xmanzelstvi','Xocekavani','Xrozveden','Xupozorneni']) ) continue;
+        ['spolu','Xpovaha','Xmanzelstvi','Xocekavani','Xrozveden','Xupozorneni','Xturnaj']) ) continue;
       $v= $v[1]??($v[0]??$v);
       if ($v!=='' || $f=='spolu') {
         if (!isset($web_json->cleni[$id])) $web_json->cleni[$id]= (object)[];
@@ -3187,22 +3203,6 @@ function souhrn($ucel) {
   if ($akce->p_zadost && get('p','zadost')) {
     $pozn= $pozn ? "$akce->veta_zadost, $pozn" : $akce->veta_zadost;
   }
-  
-  //if ($akce->p_pocet1 && get('p','pocet1')) {
-  //  $pozn= $pozn ? "$akce->veta_pocet1, $pozn" : $akce->veta_pocet1;
- // }
-  //if ($akce->p_pocet2 && get('p','pocet2')) {
-  //  $pozn= $pozn ? "$akce->veta_pocet2, $pozn" : $akce->veta_pocet2;
- // }
-  //if ($akce->p_pocet3 && get('p','pocet3')) {
-  //  $pozn= $pozn ? "$akce->veta_pocet3, $pozn" : $akce->veta_pocet3;
-  //}
-  //if ($akce->p_pocet4 && get('p','pocet4')) {
-  //  $pozn= $pozn ? "$akce->veta_pocet4, $pozn" : $akce->veta_pocet4;
-  //}
-  //if ($akce->p_pocet5 && get('p','pocet5')) {
-  //  $pozn= $pozn ? "$akce->veta_pocet5, $pozn" : $akce->veta_pocet5;
-  //}
   
   // přípony plurál/singulár
   $eme= $ucel=='kontrola'? (typ_akce('J') ? 'i' : 'eme') : 'ete'; 
