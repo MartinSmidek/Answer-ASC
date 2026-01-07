@@ -76,6 +76,7 @@ set_error_handler(function ($severity, $message, $file, $line) {
     'p_pocet3'      =>  0,
     'p_pocet4'      =>  0,
     'p_pocet5'      =>  0,
+    'p_ucast_turnaj'  => 0,
   ]; 
 
 try {
@@ -356,6 +357,7 @@ function polozky() { // --------------------------------------------------------
       'sleva_duvod' =>['64/4','* napište, proč žádáte o slevu','area'],
       'Xsouhlas'    =>[ 0,'*'.$akce->form_souhlas,'check_souhlas']],
     typ_akce('JR') && ($akce->p_zadost??0) ? [
+      'ucast_turnaj' =>['64/2','Sem napište jména a věk členů rodiny, kteří se zůčasní fotbalového turnaje' ,'area'],
       'zadost'      =>[ 0,$akce->veta_zadost,'check'],
     ] : [],
     typ_akce('JR') && ($akce->p_ubyt_prg??0) ? [
@@ -1469,6 +1471,7 @@ function form_R($new) { trace();
         'rodina'=>$akce->p_rod_adresa,
         'strava'=>$akce->p_strava,  // 0=akce bez stravy, 1=tlačítko Objednávka, 2=seznam strav
         'pozn'=>1,
+        'ucast_turnaj'=>$akce->p_ucast_turnaj,
         'zadost'=>$akce->p_zadost,
         'ubyt_prg'=>$akce->p_ubyt_prg,
         'pocet1'=>$akce->p_ubyt_prg,
@@ -1495,6 +1498,11 @@ function form_R($new) { trace();
   if ($vars->form->pozn) {
     $pobyt.= elem_input('p',0,['pracovni']);
   }
+ 
+    // Chci se účastnit 
+  if ($vars->form->zadost) {
+    $pobyt.=  '<div><b>Fotbalový turnaj</b>' . elem_input('p',0,['ucast_turnaj']);
+  }
   
   // Účast na programu
   if ($vars->form->ubyt_prg) {
@@ -1505,6 +1513,9 @@ function form_R($new) { trace();
   if ($vars->form->zadost) {
     $pobyt.= elem_input('p',0,['zadost']);
   }
+  
+ // $pobyt.='<div>type: ' . gettype($vars->pobyt->zadost[0]) . '<br>count: '. count($vars->pobyt->zadost) . '<br>nevim: ' . $vars->pobyt->zadost[0] . '</div>';
+ // $pobyt.='<div>type: ' . get('p','pocet1') . '<br>nevim: </div>';
   
   // Kolik noclehů?
   if ($vars->form->ubyt_prg) {
@@ -1545,6 +1556,7 @@ function form_J($new) { trace();
         'typ'=>$akce->p_typ, // M O R J
         'kontrola'=>[], // seznam položek s chybou
         'pozn'=>1,
+        'ucast_turnaj'=>$akce->p_ucast_turnaj,
         'zadost'=>$akce->p_zadost,
         'ubyt_prg'=>$akce->p_ubyt_prg,
         'pocet1'=>$akce->p_ubyt_prg,
@@ -1563,7 +1575,12 @@ function form_J($new) { trace();
   if ($vars->form->pozn) {
     $pobyt= elem_input('p',0,['pracovni']);
   }
-   
+
+      // Chci se účastnit 
+  if ($vars->form->zadost) {
+    $pobyt.=  '<div><b>Fotbalový turnaj</b>' . elem_input('p',0,['ucast_turnaj']);
+  }
+  
   // Účast na programu
   if ($vars->form->ubyt_prg) {
     $pobyt.= '<div><b>Počet účastníků na programu</b>' . elem_input('p',0,['pocet1','pocet2','pocet3']) . '</div>';
