@@ -75,8 +75,6 @@ $test= ''; // '' ostrá verze, '-test' testovací
     "db2/db-obsolete.php",
     "db2/db2_tcpdf.php",
     "ezer$ezer_version/server/ezer_ruian.php",
-    // ASC - dedikované funkce
-    "db2/db-tisk-noclehy.php",
   );
   
   $ezer= array(
