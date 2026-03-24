@@ -543,6 +543,7 @@ function kontrola_pinu($pin,$ignorovat_rozepsanou=0) { trace();
     }
     // jinak zapomeň předchozí vyplňování
     $vars->continue= 0;
+    unset($vars->typ_akce);
     // jinak zjistíme, zda jej máme v databázi
     $regexp= "REGEXP '(^|[;,\\\\s]+)$vars->email($|[;,\\\\s]+)'";
     list($pocet,$idors)= select_2(
@@ -639,6 +640,13 @@ function registrace_jako($typ_akce,$gender) { trace();
   polozky();
   return klient("-$gender/0",1); // nová přihláška + zvolený gender přihlašovaného
 }
+// ---------------------------------------------------------- registrace známého se změnou typu akce
+function registrace_jako_klient($typ_akce,$ido) { trace();
+  global $vars;
+  $vars->typ_akce= $typ_akce;
+  polozky();
+  return klient("$ido/0",1);
+}
 // ------------------------------------------------------------------------------------------ klient
 function klient($idor,$nova_prihlaska=1) { trace();
 # $id je nositelem přihlašovacího mailu
@@ -682,6 +690,13 @@ function klient($idor,$nova_prihlaska=1) { trace();
   $vars->idr= $idr ?: (typ_akce('MOR') ? -1 : 0) ; // pokud je ido<0 tak je idr= J ? 0 ? MOR : -1
   log_write('id_osoba',$vars->ido);
   log_write('id_rodina',$vars->idr);
+  // známý jednotlivec bez rodiny na akci typu R — nabídnout volbu
+  if ($ido>0 && $idr==0 && !isset($vars->typ_akce) && !($vars->continue??0) && typ_akce('R') && $akce->p_reg_single) {
+    vyber('Chci přihlásit',[
+        "jen sebe:registrace_jako_klient:=J,=$ido",
+        "také členy rodiny:registrace_jako_klient:=R,=$ido"]);
+    return;
+  }
   if ($ido>0) { // přihláška známého
     $vars->klient= $jmena;
     append_log(($vars->continue ? str_pad($vars->continue,6,' ',STR_PAD_LEFT) 
@@ -3004,11 +3019,19 @@ function log_find_saved($email) { // -------------------------------------------
   } // už se povedlo přihlásit
   list($idpr,$open)= select_2("SELECT id_prihlaska,open FROM prihlaska 
       WHERE id_pobyt=0 AND id_akce=$vars->id_akce AND email='$email' AND vars_json!='' 
-      AND id_prihlaska>110 ORDER BY id_prihlaska DESC LIMIT 1");
+      AND id_prihlaska>70 ORDER BY id_prihlaska DESC LIMIT 1");
   if (!$idpr) goto end;
   $vars->continue= $idpr;
   list($vars->ido,$vars->idr)= select_2(
       "SELECT id_osoba,id_rodina FROM prihlaska WHERE id_prihlaska=$idpr");
+  // obnovení typu formuláře z uložené přihlášky
+  $saved_json= select_2('vars_json','prihlaska',"id_prihlaska=$idpr");
+  if ($saved_json) {
+    $saved= json_decode_2($saved_json);
+    if (isset($saved->form->typ)) {
+      $vars->typ_akce= $saved->form->typ;
+    }
+  }
   $found= sql_time1($open);
 end:
   return $found;
