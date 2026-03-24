@@ -68,7 +68,6 @@ set_error_handler(function ($severity, $message, $file, $line) {
 //    'p_reg_rodina'  =>  0, // je povolena registrace rodiny ... TODO
   // -- jen pro registraci na akci R
     'p_reg_single'  =>  0, // je povolena registrace single 
-    'p_ubyt_prg' => 0, // zobrazí se políčka pro víkendovou akci - ubytování a program po jednotlivých dnech  
     'p_zadost'      =>  0, //  
     'veta_zadost'   =>  '',
   ]; 
