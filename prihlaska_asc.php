@@ -18,4 +18,3 @@
 
 //$_GET['org']= 'asc-test/asc';
 require_once("prihlaska_asc.4.php"); 
-

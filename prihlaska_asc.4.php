@@ -363,8 +363,8 @@ function polozky() { // --------------------------------------------------------
       'pocet1'      =>[ 5,'pátek',''],
       'pocet2'      =>[ 5,'sobota',''],
       'pocet3'      =>[ 5,'neděle',''],
-      'pocet4'      =>[ 10,'pátek => sobota',''],
-      'pocet5'      =>[ 10,'sobota => neděle',''],
+      'pocet4'      =>[ 5,'pátek',''],
+      'pocet5'      =>[ 5,'sobota',''],
     ] : [],
     typ_akce('MO') ? [
       'Xvps'        =>[15,'* služba na kurzu','select'], // bude vložena jen pro neodpočívající VPS
@@ -1596,7 +1596,7 @@ function form_J($new) { trace();
   if ($vars->form->pozn) {
     $pobyt= elem_input('p',0,['pracovni']);
   }
-   
+ 
   // Účast na programu
   if ($vars->form->ubyt_prg) {
     $pobyt.= '<div><b>Počet účastníků na programu</b>' . elem_input('p',0,['pocet1','pocet2','pocet3']) . '</div>';
