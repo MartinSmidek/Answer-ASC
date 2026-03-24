@@ -7,7 +7,7 @@
   #   $app_css    = pole s *.css
   #   $options    = doplnění Ezer.options
   #   $add_pars   = doplnění $EZER->options
-  $test= '-test'; // '' ostrá verze, '-test' testovací
+  $test= ''; // '' ostrá verze, '-test' testovací
 
   // verze použitého jádra Ezeru
   $ezer_version= isset($_GET['ezer']) ? $_GET['ezer'] : '3.3'; 
