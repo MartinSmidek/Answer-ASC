@@ -3,7 +3,7 @@
   # nastavení systému Ans(w)er před voláním AJAX
   #   $answer_db  = logický název hlavní databáze 
 
-$test= ''; // '' ostrá verze, '-test' testovací
+$test= '-test'; // '' ostrá verze, '-test' testovací
 
   global // import 
     $ezer_root; 

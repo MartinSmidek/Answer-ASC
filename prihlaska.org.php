@@ -10,8 +10,8 @@ $ORG= (object)[
   'code'  => 32,
   'smtp'  => 3,
   'name'  => 'ASC',
-  'deep'  => 'asc/asc.dbs.php', // podsložka files
-  'icon'  => '/img/prihl_icon.png',
+  'deep'  => 'asc-test/asc.dbs.php', // podsložka files
+  'icon'  => '/img/prihl_test_icon.png',
   // default pro garanta akce, pokud není dostupný z AKCE/Úprava
   'info'  => (object)[
       'name'=>'Ondřej Lednický',
